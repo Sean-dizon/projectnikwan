@@ -1,0 +1,936 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>NURplan - Patient Records</title>
+  <link rel="stylesheet" href="style.css">
+  <style>
+    /* ── Report layout ── */
+    .report-wrapper {
+      max-width: 960px;
+    }
+
+    /* Report header (hospital + patient banner) */
+    .report-header {
+      background: linear-gradient(135deg, var(--primary-blue) 0%, #1d4ed8 100%);
+      color: #fff;
+      border-radius: var(--radius-md);
+      padding: 28px 32px;
+      margin-bottom: 28px;
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      flex-wrap: wrap;
+      gap: 20px;
+    }
+    .report-header-left h2 {
+      font-size: 1.25rem;
+      font-weight: 700;
+      margin-bottom: 4px;
+      letter-spacing: -0.01em;
+    }
+    .report-header-left p {
+      font-size: 0.85rem;
+      opacity: 0.8;
+      margin-bottom: 2px;
+    }
+    .report-header-right {
+      text-align: right;
+    }
+    .report-header-right .patient-name-badge {
+      font-size: 1.4rem;
+      font-weight: 700;
+      letter-spacing: -0.02em;
+      margin-bottom: 4px;
+    }
+    .report-header-right p {
+      font-size: 0.82rem;
+      opacity: 0.85;
+      margin-bottom: 2px;
+    }
+
+    /* Module report block */
+    .report-block {
+      background: var(--bg-card);
+      border: 1px solid var(--border-color);
+      border-radius: var(--radius-md);
+      margin-bottom: 24px;
+      overflow: hidden;
+      box-shadow: var(--shadow-sm);
+      page-break-inside: avoid;
+    }
+    .report-block-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 14px 22px;
+      background: linear-gradient(90deg, rgba(37,99,235,0.07) 0%, var(--bg-light) 100%);
+      border-bottom: 1px solid var(--border-color);
+      flex-wrap: wrap;
+      gap: 10px;
+    }
+    .report-block-title {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-size: 0.95rem;
+      font-weight: 700;
+      color: var(--text-dark);
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+    }
+    .report-block-title .block-icon {
+      width: 28px;
+      height: 28px;
+      border-radius: 6px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+    }
+    .block-icon-blue   { background: rgba(37,99,235,0.12); color: var(--primary-blue); }
+    .block-icon-green  { background: rgba(34,197,94,0.12); color: #16a34a; }
+    .block-icon-amber  { background: rgba(245,158,11,0.12); color: #b45309; }
+    .block-icon-purple { background: rgba(139,92,246,0.12); color: #7c3aed; }
+    .block-icon-rose   { background: rgba(244,63,94,0.12); color: #e11d48; }
+    .block-icon-teal   { background: rgba(20,184,166,0.12); color: #0f766e; }
+    .block-icon-indigo { background: rgba(99,102,241,0.12); color: #4338ca; }
+
+    .report-block-action a {
+      font-size: 0.82rem;
+      color: var(--primary-blue);
+      text-decoration: none;
+      font-weight: 500;
+      padding: 5px 12px;
+      border: 1px solid rgba(37,99,235,0.25);
+      border-radius: var(--radius-sm);
+      transition: all 0.15s;
+    }
+    .report-block-action a:hover {
+      background: var(--primary-blue);
+      color: #fff;
+    }
+
+    /* Report table */
+    .report-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.875rem;
+    }
+    .report-table th {
+      background: var(--bg-light);
+      padding: 10px 18px;
+      text-align: left;
+      font-size: 0.75rem;
+      font-weight: 700;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      border-bottom: 1px solid var(--border-color);
+    }
+    .report-table td {
+      padding: 12px 18px;
+      border-bottom: 1px solid rgba(226,232,240,0.7);
+      color: var(--text-dark);
+      vertical-align: top;
+      line-height: 1.5;
+    }
+    .report-table tr:last-child td { border-bottom: none; }
+    .report-table tr:hover td { background: rgba(37,99,235,0.018); }
+    .report-table .empty-row td {
+      text-align: center;
+      color: var(--text-muted);
+      padding: 24px 18px;
+      font-style: italic;
+      font-size: 0.85rem;
+    }
+
+    /* Profile info grid in report style */
+    .profile-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+      gap: 0;
+    }
+    .profile-cell {
+      padding: 12px 18px;
+      border-right: 1px solid var(--border-color);
+      border-bottom: 1px solid var(--border-color);
+    }
+    .profile-cell:nth-child(even):last-child,
+    .profile-cell.full-width {
+      grid-column: 1 / -1;
+    }
+    .profile-cell strong {
+      display: block;
+      font-size: 0.72rem;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      color: var(--text-muted);
+      margin-bottom: 4px;
+      font-weight: 600;
+    }
+    .profile-cell span {
+      font-size: 0.9rem;
+      color: var(--text-dark);
+      font-weight: 500;
+    }
+
+    /* Badges */
+    .status-badge {
+      display: inline-block;
+      padding: 2px 9px;
+      border-radius: 999px;
+      font-size: 0.78rem;
+      font-weight: 600;
+    }
+    .badge-given     { background: rgba(34,197,94,0.14); color: #16a34a; }
+    .badge-notgiven  { background: rgba(239,68,68,0.12); color: #dc2626; }
+    .badge-normal    { background: rgba(34,197,94,0.14); color: #16a34a; }
+    .badge-abnormal  { background: rgba(234,179,8,0.14); color: #b45309; }
+    .badge-critical  { background: rgba(239,68,68,0.12); color: #dc2626; }
+    .badge-met       { background: rgba(34,197,94,0.14); color: #16a34a; }
+    .badge-partial   { background: rgba(234,179,8,0.14); color: #b45309; }
+    .badge-notmet    { background: rgba(239,68,68,0.12); color: #dc2626; }
+    .badge-note      { background: rgba(37,99,235,0.10); color: #1d4ed8; }
+
+    /* Section label inside table cells */
+    .cell-label {
+      font-size: 0.72rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      color: var(--text-muted);
+      margin-bottom: 3px;
+    }
+
+    /* Print toolbar */
+    .print-bar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 20px;
+      flex-wrap: wrap;
+      gap: 12px;
+    }
+    .print-bar h1 {
+      font-size: 1.35rem;
+      font-weight: 700;
+      color: var(--text-dark);
+      margin: 0;
+    }
+    .print-bar-actions {
+      display: flex;
+      gap: 10px;
+      align-items: center;
+    }
+    .btn-print {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 10px 20px;
+      background: var(--primary-blue);
+      color: #fff;
+      border: none;
+      border-radius: var(--radius-sm);
+      font-size: 0.9rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: background 0.2s;
+    }
+    .btn-print:hover { background: var(--primary-blue-dark); }
+    .btn-print svg { width: 16px; height: 16px; }
+
+    /* Empty state (no patient selected) */
+    .empty-state {
+      text-align: center;
+      padding: 60px 24px;
+      color: var(--text-muted);
+    }
+    .empty-state svg {
+      width: 52px;
+      height: 52px;
+      margin: 0 auto 16px;
+      display: block;
+      opacity: 0.3;
+    }
+    .empty-state p { font-size: 0.95rem; }
+
+    /* NCP columns */
+    .ncp-col-dx  { width: 16%; }
+    .ncp-col-ass { width: 20%; }
+    .ncp-col-pln { width: 20%; }
+    .ncp-col-int { width: 28%; }
+    .ncp-col-ev  { width: 16%; }
+
+    /* ── Print styles ── */
+    @media print {
+      .sidebar, .top-header, .print-bar, .report-block-action, .form-section {
+        display: none !important;
+      }
+      .main-content { margin-left: 0 !important; }
+      .content-area { padding: 0 !important; }
+      .report-header { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+      .report-block { box-shadow: none; border: 1px solid #ccc; }
+      body { background: #fff; }
+      .report-wrapper { max-width: 100%; }
+    }
+  </style>
+</head>
+<body>
+  <div class="dashboard-layout">
+    <aside class="sidebar">
+      <div class="sidebar-brand">
+        <div class="brand-icon"><img src="logo-nurplan.png" alt="NURplan Logo" style="width:36px;height:36px;object-fit:contain;border-radius:6px;"></div>
+        <h1>NURplan</h1>
+      </div>
+      <nav>
+        <ul class="sidebar-nav">
+          <li><a href="dashboard.html"><span class="nav-icon"><svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zM14 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z" /></svg></span>Dashboard</a></li>
+          <li><a href="patient-profile.html"><span class="nav-icon"><svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" /></svg></span>Patient Profile</a></li>
+          <li><a href="patient-records.html" class="active"><span class="nav-icon"><svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4" /></svg></span>Patient Records</a></li>
+          <li><a href="vital-signs.html"><span class="nav-icon"><svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4" /></svg></span>Vital Signs &amp; I/O</a></li>
+          <li><a href="medication-sheet.html"><span class="nav-icon"><svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M19.428 15.428a2 2 0 00-1.022-.547l-2.387-.477a6 6 0 00-3.86.517l-.318.158a6 6 0 01-3.86.517L6.05 15.21a2 2 0 00-1.806.547M8 4h8l-1 1v5.172a2 2 0 00.586 1.414l5 5c1.26 1.26.367 3.414-1.415 3.414H4.828c-1.782 0-2.674-2.154-1.414-3.414l5-5A2 2 0 009 10.172V5L8 4z" /></svg></span>Medication Sheet</a></li>
+          <li><a href="doctor-orders.html"><span class="nav-icon"><svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" /></svg></span>Doctor Orders</a></li>
+          <li><a href="laboratory-sheet.html"><span class="nav-icon"><svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M19.428 15.428a2 2 0 00-1.022-.547l-2.387-.477a6 6 0 00-3.86.517l-.318.158a6 6 0 01-3.86.517L6.05 15.21a2 2 0 00-1.806.547M8 4h8l-1 1v5.172a2 2 0 00.586 1.414l5 5c1.26 1.26.367 3.414-1.415 3.414H4.828c-1.782 0-2.674-2.154-1.414-3.414l5-5A2 2 0 009 10.172V5L8 4z" /></svg></span>Laboratory Sheet</a></li>
+          <li><a href="nursing-care-plan.html"><span class="nav-icon"><svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4" /></svg></span>Nursing Care Plan</a></li>
+          <li><a href="nurse-notes.html"><span class="nav-icon"><svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" /></svg></span>Nurse Notes</a></li>
+          <li><a href="appointment-scheduling.html"><span class="nav-icon"><svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" /></svg></span>Appointments</a></li>
+        </ul>
+      </nav>
+    </aside>
+
+    <main class="main-content">
+      <header class="top-header">
+        <div class="header-left">
+          <h2 class="header-title">NeoNest Hospital</h2>
+          <span class="header-datetime" id="headerDateTime"></span>
+        </div>
+        <div class="header-right">
+          <div class="user-profile">
+            <div class="user-avatar" id="userAvatar">N</div>
+            <span class="user-label" id="userLabel">Nurse Dashboard</span>
+          </div>
+          <button type="button" class="header-logout" id="logoutButton">
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 11-6 0v-1" />
+            </svg>
+            <span>Logout</span>
+          </button>
+        </div>
+      </header>
+
+      <div class="content-area">
+        <div class="report-wrapper">
+
+          <!-- Top bar with patient selector + print -->
+          <div class="print-bar">
+            <h1>Patient Summary Report</h1>
+            <div class="print-bar-actions">
+              <div class="form-group" style="margin:0; min-width:220px;">
+                <select id="patientSelect" style="padding:10px 14px; border:1px solid var(--border-color); border-radius:var(--radius-sm); font-size:0.9rem; font-family:inherit; width:100%;">
+                  <option value="">Select patient</option>
+                </select>
+              </div>
+              <button type="button" class="btn-print" id="printBtn" style="display:none;" onclick="window.print()">
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z" /></svg>
+                Print / Save PDF
+              </button>
+            </div>
+          </div>
+
+          <!-- Empty state -->
+          <div id="emptyState">
+            <div class="empty-state">
+              <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" /></svg>
+              <p>Select a patient above to view their complete summary report.</p>
+            </div>
+          </div>
+
+          <!-- Full report (shown when patient selected) -->
+          <div id="reportContent" style="display:none;">
+
+            <!-- Report header banner -->
+            <div class="report-header" id="reportBanner">
+              <div class="report-header-left">
+                <h2>NeoNest Hospital</h2>
+                <p>Patient Summary Report</p>
+                <p id="reportPrintDate" style="margin-top:8px; font-size:0.78rem; opacity:0.7;"></p>
+              </div>
+              <div class="report-header-right">
+                <div class="patient-name-badge" id="bannerName">—</div>
+                <p id="bannerAge"></p>
+                <p id="bannerGender"></p>
+                <p id="bannerAdmit"></p>
+                <p id="bannerPhysician"></p>
+              </div>
+            </div>
+
+            <!-- ── BLOCK 1: Patient Profile ── -->
+            <div class="report-block">
+              <div class="report-block-header">
+                <div class="report-block-title">
+                  <span class="block-icon block-icon-blue">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" /></svg>
+                  </span>
+                  Patient Profile
+                </div>
+                <div class="report-block-action"><a href="patient-profile.html">Edit Profile</a></div>
+              </div>
+              <div class="profile-grid" id="profileGrid"></div>
+            </div>
+
+            <!-- ── BLOCK 2: Vital Signs ── -->
+            <div class="report-block">
+              <div class="report-block-header">
+                <div class="report-block-title">
+                  <span class="block-icon block-icon-green">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M9 19V6l2 5h4l-6 8z" /></svg>
+                  </span>
+                  Vital Signs
+                </div>
+                <div class="report-block-action"><a href="vital-signs.html">Open Module</a></div>
+              </div>
+              <div class="table-wrapper">
+                <table class="report-table">
+                  <thead>
+                    <tr>
+                      <th>Date</th>
+                      <th>Time</th>
+                      <th>Temp (°C)</th>
+                      <th>Blood Pressure</th>
+                      <th>Pulse (bpm)</th>
+                      <th>Resp Rate (/min)</th>
+                      <th>SpO₂ (%)</th>
+                      <th>Notes</th>
+                    </tr>
+                  </thead>
+                  <tbody id="vitalsBody"></tbody>
+                </table>
+              </div>
+            </div>
+
+            <!-- ── BLOCK 3: Medication Sheet ── -->
+            <div class="report-block">
+              <div class="report-block-header">
+                <div class="report-block-title">
+                  <span class="block-icon block-icon-amber">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M19.428 15.428a2 2 0 00-1.022-.547l-2.387-.477a6 6 0 00-3.86.517l-.318.158a6 6 0 01-3.86.517L6.05 15.21a2 2 0 00-1.806.547M8 4h8l-1 1v5.172a2 2 0 00.586 1.414l5 5c1.26 1.26.367 3.414-1.415 3.414H4.828c-1.782 0-2.674-2.154-1.414-3.414l5-5A2 2 0 009 10.172V5L8 4z" /></svg>
+                  </span>
+                  Medication Sheet
+                </div>
+                <div class="report-block-action"><a href="medication-sheet.html">Open Module</a></div>
+              </div>
+              <div class="table-wrapper">
+                <table class="report-table">
+                  <thead>
+                    <tr>
+                      <th>Date</th>
+                      <th>Time</th>
+                      <th>Frequency</th>
+                      <th>Medication</th>
+                      <th>Dosage</th>
+                      <th>Route</th>
+                      <th>Given By</th>
+                      <th>Status</th>
+                    </tr>
+                  </thead>
+                  <tbody id="medsBody"></tbody>
+                </table>
+              </div>
+            </div>
+
+            <!-- ── BLOCK 4: Laboratory Sheet ── -->
+            <div class="report-block">
+              <div class="report-block-header">
+                <div class="report-block-title">
+                  <span class="block-icon block-icon-purple">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M9 3v11.5a3.5 3.5 0 007 0V3M6 3h12" /></svg>
+                  </span>
+                  Laboratory Sheet
+                </div>
+                <div class="report-block-action"><a href="laboratory-sheet.html">Open Module</a></div>
+              </div>
+              <div class="table-wrapper">
+                <table class="report-table">
+                  <thead>
+                    <tr>
+                      <th>Date</th>
+                      <th>Test Name</th>
+                      <th>Results / Values</th>
+                      <th>Normal Range</th>
+                      <th>Remarks / Interpretation</th>
+                    </tr>
+                  </thead>
+                  <tbody id="labBody"></tbody>
+                </table>
+              </div>
+            </div>
+
+            <!-- ── BLOCK 5: Doctor Orders ── -->
+            <div class="report-block">
+              <div class="report-block-header">
+                <div class="report-block-title">
+                  <span class="block-icon block-icon-indigo">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" /></svg>
+                  </span>
+                  Doctor's Orders
+                </div>
+                <div class="report-block-action"><a href="doctor-orders.html">Open Module</a></div>
+              </div>
+              <div class="table-wrapper">
+                <table class="report-table">
+                  <thead>
+                    <tr>
+                      <th>Date</th>
+                      <th>Time</th>
+                      <th>Doctor</th>
+                      <th>Order Description</th>
+                      <th>Carried Out By</th>
+                    </tr>
+                  </thead>
+                  <tbody id="ordersBody"></tbody>
+                </table>
+              </div>
+            </div>
+
+            <!-- ── BLOCK 6: Intake & Output ── -->
+            <div class="report-block">
+              <div class="report-block-header">
+                <div class="report-block-title">
+                  <span class="block-icon block-icon-teal">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M3 10h18M3 14h18M10 3v18M14 3v18" /></svg>
+                  </span>
+                  Intake &amp; Output
+                </div>
+                <div class="report-block-action"><a href="vital-signs.html">Open Module</a></div>
+              </div>
+              <div class="table-wrapper">
+                <table class="report-table">
+                  <thead>
+                    <tr>
+                      <th>Date &amp; Time</th>
+                      <th>Shift</th>
+                      <th>Oral (mL)</th>
+                      <th>IVF (mL)</th>
+                      <th>BT (mL)</th>
+                      <th>Total In (mL)</th>
+                      <th>Urine (mL)</th>
+                      <th>NGT (mL)</th>
+                      <th>Vomitus (mL)</th>
+                      <th>Bowel (mL)</th>
+                      <th>Total Out (mL)</th>
+                    </tr>
+                  </thead>
+                  <tbody id="ioBody"></tbody>
+                </table>
+              </div>
+            </div>
+
+            <!-- ── BLOCK 7: Appointments ── -->
+            <div class="report-block">
+              <div class="report-block-header">
+                <div class="report-block-title">
+                  <span class="block-icon block-icon-teal">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" /></svg>
+                  </span>
+                  Appointments
+                </div>
+                <div class="report-block-action"><a href="appointment-scheduling.html">Open Module</a></div>
+              </div>
+              <div class="table-wrapper">
+                <table class="report-table">
+                  <thead>
+                    <tr>
+                      <th>Date</th>
+                      <th>Time</th>
+                      <th>Department</th>
+                      <th>Type</th>
+                      <th>Physician</th>
+                      <th>Reason</th>
+                      <th>Status</th>
+                    </tr>
+                  </thead>
+                  <tbody id="appointmentsBody"></tbody>
+                </table>
+              </div>
+            </div>
+
+            <!-- ── BLOCK 8: Nursing Care Plan ── -->
+            <div class="report-block">
+              <div class="report-block-header">
+                <div class="report-block-title">
+                  <span class="block-icon block-icon-rose">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4" /></svg>
+                  </span>
+                  Nursing Care Plan
+                </div>
+                <div class="report-block-action"><a href="nursing-care-plan.html">Open Module</a></div>
+              </div>
+              <div class="table-wrapper">
+                <table class="report-table" style="table-layout:fixed; width:100%;">
+                  <thead>
+                    <tr>
+                      <th class="ncp-col-dx">Nursing Diagnosis</th>
+                      <th class="ncp-col-ass">Assessment</th>
+                      <th class="ncp-col-pln">Planning</th>
+                      <th class="ncp-col-int">Interventions</th>
+                      <th class="ncp-col-ev">Evaluation</th>
+                    </tr>
+                  </thead>
+                  <tbody id="ncpBody"></tbody>
+                </table>
+              </div>
+            </div>
+
+          </div><!-- end reportContent -->
+        </div><!-- end report-wrapper -->
+      </div><!-- end content-area -->
+    </main>
+  </div>
+
+  <script src="script.js"></script>
+  <script>
+    // ── Helpers ───────────────────────────────────────────────────────────────
+
+    function safe(v) { return escapeHtml(v || '') || '—'; }
+    function safeMulti(v) {
+      if (!v) return '—';
+      return escapeHtml(v).replace(/\n/g, '<br>');
+    }
+
+    function emptyRow(cols, msg) {
+      return `<tr class="empty-row"><td colspan="${cols}">${msg || 'No records for this patient.'}</td></tr>`;
+    }
+
+    function remarksBadge(r) {
+      if (!r) return '—';
+      const l = r.toLowerCase();
+      if (l === 'normal')   return `<span class="status-badge badge-normal">Normal</span>`;
+      if (l === 'abnormal') return `<span class="status-badge badge-abnormal">Abnormal</span>`;
+      if (l === 'critical') return `<span class="status-badge badge-critical">Critical</span>`;
+      return `<span class="status-badge badge-note">${escapeHtml(r)}</span>`;
+    }
+
+    function statusBadge(s) {
+      if (!s) return '—';
+      if (s === 'Given')     return `<span class="status-badge badge-given">Given</span>`;
+      if (s === 'Not Given') return `<span class="status-badge badge-notgiven">Not Given</span>`;
+      return escapeHtml(s);
+    }
+
+    function evalBadge(s) {
+      if (!s) return '—';
+      if (s === 'Goal Met')      return `<span class="status-badge badge-met">Goal Met</span>`;
+      if (s === 'Partially Met') return `<span class="status-badge badge-partial">Partially Met</span>`;
+      if (s === 'Not Met')       return `<span class="status-badge badge-notmet">Not Met</span>`;
+      return escapeHtml(s);
+    }
+
+    // ── Age calc ──────────────────────────────────────────────────────────────
+    function calcAge(dob) {
+      if (!dob) return '';
+      const d = new Date(dob), now = new Date();
+      if (isNaN(d)) return '';
+      let y = now.getFullYear() - d.getFullYear();
+      let m = now.getMonth() - d.getMonth();
+      if (m < 0 || (m === 0 && now.getDate() < d.getDate())) { y--; m += 12; }
+      if (now.getDate() < d.getDate()) m--;
+      const total = y * 12 + m;
+      if (total < 24) return total + (total === 1 ? ' month' : ' months');
+      return y + (y === 1 ? ' year' : ' years');
+    }
+
+    // ── Render patient profile block ──────────────────────────────────────────
+    function renderProfile(p) {
+      const age = calcAge(p.dob);
+      const address = [p.street, p.barangay, p.city].filter(Boolean).join(', ') || '—';
+      const pe = p.physicalExam || {};
+      const systems = [
+        ['General Appearance', 'sysGeneral', 'sysGeneralFindings', 'sysGeneralNotes'],
+        ['Integumentary (Skin)', 'sysSkin', 'sysSkinFindings', 'sysSkinNotes'],
+        ['HEENT', 'sysHEENT', 'sysHEENTFindings', 'sysHEENTNotes'],
+        ['Respiratory', 'sysResp', 'sysRespFindings', 'sysRespNotes'],
+        ['Cardiovascular', 'sysCardio', 'sysCardioFindings', 'sysCardioNotes'],
+        ['Gastrointestinal', 'sysGI', 'sysGIFindings', 'sysGINotes'],
+        ['Genitourinary', 'sysGU', 'sysGUFindings', 'sysGUNotes'],
+        ['Musculoskeletal', 'sysMusculo', 'sysMusculoFindings', 'sysMusculoNotes'],
+        ['Neurological', 'sysNeuro', 'sysNeuroFindings', 'sysNeuroNotes']
+      ];
+
+      const peRows = systems.map(([label, condKey, findKey, notesKey]) => {
+        const cond = pe[condKey] || '';
+        const finds = (pe[findKey] || []).join(', ');
+        const notes = pe[notesKey] || '';
+        const val = [cond, finds, notes].filter(Boolean).join(' · ') || '—';
+        return `<div class="profile-cell"><strong>${label}</strong><span>${escapeHtml(val)}</span></div>`;
+      }).join('');
+
+      const complaints = (p.chiefComplaints || []).join(', ') || '—';
+      const otherComplaints = (p.otherComplaints || []).map(c => c.complaint + (c.description ? ': ' + c.description : '')).join('; ') || '—';
+
+      document.getElementById('profileGrid').innerHTML = `
+        <div class="profile-cell"><strong>Hospital Number</strong><span>${safe(p.hospitalNumber)}</span></div>
+        <div class="profile-cell"><strong>Full Name</strong><span>${safe(p.name)}</span></div>
+        <div class="profile-cell"><strong>Date of Birth</strong><span>${safe(p.dob)}</span></div>
+        <div class="profile-cell"><strong>Age</strong><span>${escapeHtml(age) || '—'}</span></div>
+        <div class="profile-cell"><strong>Gender</strong><span>${safe(p.gender)}</span></div>
+        <div class="profile-cell"><strong>Religion</strong><span>${safe(p.religion)}</span></div>
+        <div class="profile-cell"><strong>Nationality</strong><span>${safe(p.nationality)}</span></div>
+        <div class="profile-cell"><strong>Contact Number</strong><span>${safe(p.contact)}</span></div>
+        <div class="profile-cell full-width"><strong>Address</strong><span>${escapeHtml(address)}</span></div>
+        <div class="profile-cell"><strong>Emergency Contact</strong><span>${safe(p.emergencyName)}</span></div>
+        <div class="profile-cell"><strong>Emergency No.</strong><span>${safe(p.emergencyContact)}</span></div>
+        <div class="profile-cell"><strong>Relationship</strong><span>${safe(p.emergencyRelationship)}</span></div>
+        <div class="profile-cell"><strong>Date Admitted</strong><span>${safe(p.dateAdmitted)}</span></div>
+        <div class="profile-cell"><strong>Time Admitted</strong><span>${safe(p.timeAdmitted)}</span></div>
+        <div class="profile-cell"><strong>Attending Physician</strong><span>${safe(p.attendingPhysician)}</span></div>
+        <div class="profile-cell"><strong>Unit / Ward</strong><span>${[p.attendingUnit, p.wardType].filter(Boolean).join(' – ') || '—'}</span></div>
+        <div class="profile-cell"><strong>Bed Number</strong><span>${safe(p.bedNumber)}</span></div>
+        <div class="profile-cell"><strong>Allergies</strong><span>${safe(p.allergies)}</span></div>
+        <div class="profile-cell full-width"><strong>Chief Complaints</strong><span>${escapeHtml(complaints)}</span></div>
+        <div class="profile-cell full-width"><strong>Other Complaints</strong><span>${escapeHtml(otherComplaints)}</span></div>
+        <div class="profile-cell full-width" style="border-top:2px solid var(--border-color); background:var(--bg-light);">
+          <strong style="font-size:0.75rem; letter-spacing:0.07em;">Physical Examination — System Review</strong><span></span>
+        </div>
+        ${peRows}
+      `;
+    }
+
+    // ── Render vitals ─────────────────────────────────────────────────────────
+    function renderVitals(pid) {
+      const data = getStoredData('his_vital_signs').filter(v => v.patientId === pid);
+      const tbody = document.getElementById('vitalsBody');
+      if (!data.length) { tbody.innerHTML = emptyRow(8); return; }
+      tbody.innerHTML = data.map(v => `
+        <tr>
+          <td>${safe(v.date)}</td>
+          <td>${safe(v.time)}</td>
+          <td>${safe(v.temperature)}</td>
+          <td>${safe(v.bloodPressure)}</td>
+          <td>${safe(v.pulseRate)}</td>
+          <td>${safe(v.respiratoryRate)}</td>
+          <td>${safe(v.spo2 || v.spO2)}</td>
+          <td>${safeMulti(v.notes)}</td>
+        </tr>`).join('');
+    }
+
+    // ── Render medications ────────────────────────────────────────────────────
+    function renderMeds(pid) {
+      const data = getStoredData('his_medication').filter(m => m.patientId === pid);
+      const tbody = document.getElementById('medsBody');
+      if (!data.length) { tbody.innerHTML = emptyRow(8); return; }
+      tbody.innerHTML = data.map(m => `
+        <tr>
+          <td>${safe(m.date)}</td>
+          <td>${safe(m.timeGiven)}</td>
+          <td>${safe(m.frequency)}</td>
+          <td>${safe(m.medicationName)}</td>
+          <td>${safe(m.dosage)}</td>
+          <td>${safe(m.route)}</td>
+          <td>${safe(m.nurseName)}</td>
+          <td>${statusBadge(m.status)}</td>
+        </tr>`).join('');
+    }
+
+    // ── Render lab ────────────────────────────────────────────────────────────
+    function renderLab(pid) {
+      const data = getStoredData('his_laboratory').filter(l => l.patientId === pid);
+      const tbody = document.getElementById('labBody');
+      if (!data.length) { tbody.innerHTML = emptyRow(5); return; }
+      tbody.innerHTML = data.map(l => `
+        <tr>
+          <td>${safe(l.date)}</td>
+          <td>${safe(l.testName)}</td>
+          <td>${safe(l.result)}</td>
+          <td>${safe(l.normalRange)}</td>
+          <td>${remarksBadge(l.remarks)}</td>
+        </tr>`).join('');
+    }
+
+    // ── Render orders ─────────────────────────────────────────────────────────
+    function renderOrders(pid) {
+      const data = getStoredData('his_doctor_orders').filter(o => o.patientId === pid);
+      const tbody = document.getElementById('ordersBody');
+      if (!data.length) { tbody.innerHTML = emptyRow(5); return; }
+      tbody.innerHTML = data.map(o => `
+        <tr>
+          <td>${safe(o.date)}</td>
+          <td>${safe(o.time)}</td>
+          <td>${safe(o.doctorName)}</td>
+          <td>${safeMulti(o.orderDescription)}</td>
+          <td>${safe(o.carriedOutBy)}</td>
+        </tr>`).join('');
+    }
+
+    // ── Render I&O ────────────────────────────────────────────────────────────
+    function renderIO(pid) {
+      const data = getStoredData('his_intake_output').filter(io => io.patientId === pid);
+      const tbody = document.getElementById('ioBody');
+      if (!data.length) { tbody.innerHTML = emptyRow(11); return; }
+      tbody.innerHTML = data.map(io => `
+        <tr>
+          <td>${safe(io.date)}${io.time ? ' ' + io.time : ''}</td>
+          <td>${safe(io.shift)}</td>
+          <td>${io.oralIntake != null ? io.oralIntake : '—'}</td>
+          <td>${io.ivfIntake  != null ? io.ivfIntake  : '—'}</td>
+          <td>${io.btIntake   != null ? io.btIntake   : '—'}</td>
+          <td><strong>${io.totalIntake != null ? io.totalIntake : '—'}</strong></td>
+          <td>${io.urineOutput  != null ? io.urineOutput  : '—'}</td>
+          <td>${io.ngtOutput    != null ? io.ngtOutput    : '—'}</td>
+          <td>${io.vomitusOutput != null ? io.vomitusOutput : '—'}</td>
+          <td>${io.bowelOutput  != null ? io.bowelOutput  : '—'}</td>
+          <td><strong>${io.totalOutput != null ? io.totalOutput : '—'}</strong></td>
+        </tr>`).join('');
+    }
+
+    // ── Render appointments ───────────────────────────────────────────────
+    function getApptStatusBadge(status) {
+      const styles = {
+        'Scheduled':   'background:rgba(37,99,235,0.12);color:#1d4ed8;',
+        'Completed':   'background:rgba(34,197,94,0.15);color:#16a34a;',
+        'Cancelled':   'background:rgba(239,68,68,0.12);color:#dc2626;',
+        'No Show':     'background:rgba(245,158,11,0.15);color:#b45309;',
+        'Rescheduled': 'background:rgba(139,92,246,0.12);color:#6d28d9;'
+      };
+      const style = styles[status] || 'background:rgba(100,116,139,0.12);color:#475569;';
+      return `<span style="${style}padding:3px 9px;border-radius:6px;font-size:0.78rem;font-weight:500;white-space:nowrap;">${escapeHtml(status || '—')}</span>`;
+    }
+
+    function renderAppointments(pid) {
+      const data = getStoredData('his_appointments').filter(a => a.patientId === pid);
+      const tbody = document.getElementById('appointmentsBody');
+      if (!data.length) { tbody.innerHTML = emptyRow(7); return; }
+      tbody.innerHTML = data.map(a => `
+        <tr>
+          <td>${safe(a.date)}</td>
+          <td>${safe(a.time)}</td>
+          <td>${safe(a.department)}</td>
+          <td>${safe(a.apptType)}</td>
+          <td>${safe(a.attendingPhysician)}</td>
+          <td style="max-width:200px;white-space:pre-wrap;word-wrap:break-word;">${safeMulti(a.reason)}</td>
+          <td>${getApptStatusBadge(a.status)}</td>
+        </tr>`).join('');
+    }
+
+    // ── Render NCP ────────────────────────────────────────────────────────────
+    function renderNCP(pid) {
+      const data = getStoredData('his_nursing_care_plan').filter(cp => cp.patientId === pid);
+      const tbody = document.getElementById('ncpBody');
+      if (!data.length) { tbody.innerHTML = emptyRow(5); return; }
+      tbody.innerHTML = data.map(cp => {
+        // Diagnosis
+        const dx = [cp.nursingDiagnosis, cp.nursingDiagnosisCustom].filter(Boolean).join('<br>') || '—';
+
+        // Assessment
+        const subj = cp.assessmentSubjective
+          ? `<div class="cell-label">Subjective</div>${safeMulti(cp.assessmentSubjective)}`
+          : '';
+        const findings = (cp.objectiveFindings || []);
+        const objOther = cp.objectiveOther || '';
+        const allFindings = [...findings, ...(objOther ? [objOther] : [])].join(', ');
+        const objHtml = allFindings
+          ? `<div class="cell-label" style="margin-top:6px;">Objective</div>${escapeHtml(allFindings)}`
+          : '';
+        // Legacy support: assessmentObjective plain text
+        const legacyObj = cp.assessmentObjective
+          ? `<div class="cell-label" style="margin-top:6px;">Objective</div>${safeMulti(cp.assessmentObjective)}`
+          : '';
+        const assHtml = [subj, objHtml || legacyObj].filter(Boolean).join('') || '—';
+
+        // Planning
+        const st = (cp.shortTermGoals || []).map(g => '• ' + escapeHtml(g)).join('<br>');
+        const lt = (cp.longTermGoals || []).map(g => '• ' + escapeHtml(g)).join('<br>');
+        // Legacy: planning as plain text
+        const legacyPlan = cp.planning ? safeMulti(cp.planning) : '';
+        const planHtml = (st || lt)
+          ? [(st ? `<div class="cell-label">Short-Term</div>${st}` : ''), (lt ? `<div class="cell-label" style="margin-top:5px;">Long-Term</div>${lt}` : '')].filter(Boolean).join('')
+          : (legacyPlan || '—');
+
+        // Interventions
+        const intDx  = cp.intDx  ? `<div class="cell-label" style="color:var(--primary-blue)">Dx</div>${safeMulti(cp.intDx)}`  : '';
+        const intTx  = cp.intTx  ? `<div class="cell-label" style="color:#16a34a;margin-top:5px;">Tx</div>${safeMulti(cp.intTx)}`  : '';
+        const intEdx = cp.intEdx ? `<div class="cell-label" style="color:#b45309;margin-top:5px;">Edx</div>${safeMulti(cp.intEdx)}` : '';
+        // Legacy: intervention as plain text
+        const legacyInt = cp.intervention ? safeMulti(cp.intervention) : '';
+        const intHtml = (intDx || intTx || intEdx) ? [intDx, intTx, intEdx].filter(Boolean).join('') : (legacyInt || '—');
+
+        // Evaluation
+        const evalStatus = cp.evaluationStatus || cp.evaluation || '';
+        const evalRemarks = cp.evaluationRemarks || '';
+        const evalHtml = evalBadge(evalStatus)
+          + (evalRemarks ? `<br><span style="font-size:0.8rem;color:var(--text-muted);">${escapeHtml(evalRemarks)}</span>` : '');
+
+        return `
+          <tr>
+            <td class="ncp-col-dx">${dx}</td>
+            <td class="ncp-col-ass">${assHtml}</td>
+            <td class="ncp-col-pln">${planHtml}</td>
+            <td class="ncp-col-int">${intHtml}</td>
+            <td class="ncp-col-ev">${evalHtml || '—'}</td>
+          </tr>`;
+      }).join('');
+    }
+
+    // ── Master render ─────────────────────────────────────────────────────────
+    function renderFullReport(pid) {
+      const patients = getPatients();
+      const p = patients.find(pt => pt.id === pid);
+      if (!p) return;
+
+      // Banner
+      const age = calcAge(p.dob);
+      document.getElementById('bannerName').textContent = p.name || '—';
+      document.getElementById('bannerAge').textContent = age ? 'Age: ' + age : '';
+      document.getElementById('bannerGender').textContent = p.gender ? 'Gender: ' + p.gender : '';
+      document.getElementById('bannerAdmit').textContent = p.dateAdmitted ? 'Admitted: ' + p.dateAdmitted + (p.timeAdmitted ? ' ' + p.timeAdmitted : '') : '';
+      document.getElementById('bannerPhysician').textContent = p.attendingPhysician ? 'Physician: ' + p.attendingPhysician : '';
+      document.getElementById('reportPrintDate').textContent = 'Generated: ' + new Date().toLocaleString('en-US', { weekday:'short', year:'numeric', month:'short', day:'numeric', hour:'2-digit', minute:'2-digit' });
+
+      renderProfile(p);
+      renderVitals(pid);
+      renderMeds(pid);
+      renderLab(pid);
+      renderOrders(pid);
+      renderIO(pid);
+      renderAppointments(pid);
+      renderNCP(pid);
+
+      document.getElementById('emptyState').style.display = 'none';
+      document.getElementById('reportContent').style.display = 'block';
+      document.getElementById('printBtn').style.display = 'flex';
+    }
+
+    function clearReport() {
+      document.getElementById('emptyState').style.display = 'block';
+      document.getElementById('reportContent').style.display = 'none';
+      document.getElementById('printBtn').style.display = 'none';
+    }
+
+    // ── Init ──────────────────────────────────────────────────────────────────
+    document.addEventListener('DOMContentLoaded', function () {
+      populatePatientSelect('patientSelect', {
+        onChange: function (pid) {
+          if (pid) renderFullReport(pid);
+          else clearReport();
+        }
+      });
+
+      const current = getSelectedPatient();
+      if (current) {
+        document.getElementById('patientSelect').value = current.id;
+        renderFullReport(current.id);
+      }
+    });
+
+    // Auto-refresh if data changes in another tab
+    window.addEventListener('storage', function (e) {
+      const keys = ['his_patients','his_vital_signs','his_medication','his_laboratory','his_doctor_orders','his_intake_output','his_nursing_care_plan','his_appointments'];
+      if (keys.indexOf(e.key) !== -1) {
+        const pid = getSelectedPatientId();
+        if (pid) renderFullReport(pid);
+      }
+    });
+  </script>
+</body>
+</html>

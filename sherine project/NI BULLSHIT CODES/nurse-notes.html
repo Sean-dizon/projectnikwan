@@ -1,0 +1,221 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>NURplan - Nurse's Notes</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <div class="dashboard-layout">
+    <aside class="sidebar">
+      <div class="sidebar-brand">
+        <div class="brand-icon"><img src="logo-nurplan.png" alt="NURplan Logo" style="width:36px;height:36px;object-fit:contain;border-radius:6px;"></div>
+        <h1>NURplan</h1>
+      </div>
+      <nav>
+        <ul class="sidebar-nav">
+          <li><a href="dashboard.html"><span class="nav-icon"><svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zM14 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z" /></svg></span>Dashboard</a></li>
+          <li><a href="patient-profile.html"><span class="nav-icon"><svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" /></svg></span>Patient Profile</a></li>
+          <li><a href="patient-records.html"><span class="nav-icon"><svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4" /></svg></span>Patient Records</a></li>
+          <li><a href="vital-signs.html"><span class="nav-icon"><svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4" /></svg></span>Vital Signs &amp; I/O</a></li>
+          <li><a href="medication-sheet.html"><span class="nav-icon"><svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M19.428 15.428a2 2 0 00-1.022-.547l-2.387-.477a6 6 0 00-3.86.517l-.318.158a6 6 0 01-3.86.517L6.05 15.21a2 2 0 00-1.806.547M8 4h8l-1 1v5.172a2 2 0 00.586 1.414l5 5c1.26 1.26.367 3.414-1.415 3.414H4.828c-1.782 0-2.674-2.154-1.414-3.414l5-5A2 2 0 009 10.172V5L8 4z" /></svg></span>Medication Sheet</a></li>
+          <li><a href="doctor-orders.html"><span class="nav-icon"><svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" /></svg></span>Doctor Orders</a></li>
+          <li><a href="laboratory-sheet.html"><span class="nav-icon"><svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M19.428 15.428a2 2 0 00-1.022-.547l-2.387-.477a6 6 0 00-3.86.517l-.318.158a6 6 0 01-3.86.517L6.05 15.21a2 2 0 00-1.806.547M8 4h8l-1 1v5.172a2 2 0 00.586 1.414l5 5c1.26 1.26.367 3.414-1.415 3.414H4.828c-1.782 0-2.674-2.154-1.414-3.414l5-5A2 2 0 009 10.172V5L8 4z" /></svg></span>Laboratory Sheet</a></li>
+          <li><a href="nursing-care-plan.html"><span class="nav-icon"><svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4" /></svg></span>Nursing Care Plan</a></li>
+          <li><a href="nurse-notes.html" class="active"><span class="nav-icon"><svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" /></svg></span>Nurse Notes</a></li>
+          <li><a href="appointment-scheduling.html"><span class="nav-icon"><svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" /></svg></span>Appointments</a></li>
+        </ul>
+      </nav>
+    </aside>
+
+    <main class="main-content">
+      <header class="top-header">
+        <div class="header-left">
+          <h2 class="header-title">NeoNest Hospital</h2>
+          <span class="header-datetime" id="headerDateTime"></span>
+        </div>
+        <div class="header-right">
+          <div class="user-profile">
+            <div class="user-avatar" id="userAvatar">N</div>
+            <span class="user-label" id="userLabel">Nurse Dashboard</span>
+          </div>
+          <button type="button" class="header-logout" id="logoutButton">
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 11-6 0v-1" />
+            </svg>
+            <span>Logout</span>
+          </button>
+        </div>
+      </header>
+
+      <div class="content-area">
+        <h1 class="page-title">Nurse's Notes</h1>
+
+        <!-- Patient Selection -->
+        <div class="form-section">
+          <h3>Current Patient</h3>
+          <div class="form-row">
+            <div class="form-group">
+              <label for="patientSelect">Select Patient</label>
+              <select id="patientSelect">
+                <option value="">Select patient</option>
+              </select>
+            </div>
+          </div>
+        </div>
+
+        <!-- Add Note Form -->
+        <div class="form-section">
+          <h3>Add Nurse's Note</h3>
+          <form id="nurseNoteForm">
+
+            <!-- Row 1: Date & Time -->
+            <div class="form-row">
+              <div class="form-group">
+                <label for="noteDate">Date</label>
+                <input type="date" id="noteDate" required>
+              </div>
+              <div class="form-group">
+                <label for="noteTime">Time</label>
+                <input type="time" id="noteTime" required>
+              </div>
+            </div>
+
+            <!-- Row 2: Nurse's Notes (narrative) -->
+            <div class="form-group">
+              <label for="noteText">Nurse's Notes</label>
+              <textarea
+                id="noteText"
+                placeholder="Enter narrative notes here (e.g. patient's condition, interventions done, patient response, changes observed...)"
+                style="min-height: 160px;"
+                required
+              ></textarea>
+            </div>
+
+            <!-- Row 3: Nurse Name -->
+            <div class="form-row">
+              <div class="form-group">
+                <label for="nurseName">Nurse Name</label>
+                <input type="text" id="nurseName" placeholder="Full name of nurse on duty" required>
+              </div>
+            </div>
+
+            <button type="submit" class="btn-save">Save Note</button>
+          </form>
+        </div>
+
+        <!-- Notes Records Table -->
+        <div class="data-table-section">
+          <div class="table-header">
+            <h3>Nurse's Notes Records</h3>
+            <button type="button" class="btn-clear" id="clearNurseNotes">Clear All Records</button>
+          </div>
+          <div class="table-wrapper">
+            <table class="data-table" style="table-layout: fixed; width: 100%;">
+              <thead>
+                <tr>
+                  <th style="width: 12%;">Date</th>
+                  <th style="width: 10%;">Time</th>
+                  <th style="width: 58%;">Nurse's Notes</th>
+                  <th style="width: 20%;">Nurse Name</th>
+                </tr>
+              </thead>
+              <tbody id="nurseNotesTableBody">
+                <tr><td colspan="4" style="text-align: center; color: var(--text-muted);">No notes yet. Add a note above.</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+      </div>
+    </main>
+  </div>
+
+  <script src="script.js"></script>
+  <script>
+    const NOTES_STORAGE_KEY = 'his_nurse_notes';
+
+    function loadNurseNotes() {
+      var tbody = document.getElementById('nurseNotesTableBody');
+      var selectedId = getSelectedPatientId();
+      if (!selectedId) {
+        tbody.innerHTML = '<tr><td colspan="4" style="text-align: center; color: var(--text-muted);">Select a patient above to view nurse\'s notes.</td></tr>';
+        return;
+      }
+      var all = getStoredData(NOTES_STORAGE_KEY);
+      var data = all.filter(function(n) { return n.patientId === selectedId; });
+      if (data.length === 0) {
+        tbody.innerHTML = '<tr><td colspan="4" style="text-align: center; color: var(--text-muted);">No notes yet for this patient. Add a note above.</td></tr>';
+        return;
+      }
+      tbody.innerHTML = data.map(function(n) {
+        return '<tr>' +
+          '<td>' + escapeHtml(n.date || '-') + '</td>' +
+          '<td>' + escapeHtml(n.time || '-') + '</td>' +
+          '<td style="white-space: pre-wrap; word-wrap: break-word; line-height: 1.6;">' + formatMultiline(n.noteText) + '</td>' +
+          '<td>' + escapeHtml(n.nurseName || '-') + '</td>' +
+        '</tr>';
+      }).join('');
+    }
+
+    document.getElementById('nurseNoteForm').addEventListener('submit', function(e) {
+      e.preventDefault();
+      var selectedId = getSelectedPatientId();
+      if (!selectedId) {
+        alert('Please select a patient first.');
+        return;
+      }
+      var records = getStoredData(NOTES_STORAGE_KEY);
+      records.push({
+        patientId: selectedId,
+        date: document.getElementById('noteDate').value,
+        time: document.getElementById('noteTime').value,
+        noteText: document.getElementById('noteText').value,
+        nurseName: document.getElementById('nurseName').value
+      });
+      setStoredData(NOTES_STORAGE_KEY, records);
+      loadNurseNotes();
+      this.reset();
+      // Restore defaults after reset
+      var username = localStorage.getItem('his_username');
+      if (username) document.getElementById('nurseName').value = username;
+      var today = new Date().toISOString().split('T')[0];
+      document.getElementById('noteDate').value = today;
+      refreshDashboard();
+    });
+
+    document.getElementById('clearNurseNotes').addEventListener('click', function() {
+      var selectedId = getSelectedPatientId();
+      if (!selectedId) {
+        alert('Select a patient first.');
+        return;
+      }
+      if (confirm('Clear all nurse\'s notes for this patient? This cannot be undone.')) {
+        var all = getStoredData(NOTES_STORAGE_KEY);
+        var remaining = all.filter(function(n) { return n.patientId !== selectedId; });
+        setStoredData(NOTES_STORAGE_KEY, remaining);
+        loadNurseNotes();
+        refreshDashboard();
+      }
+    });
+
+    (function initNurseNotes() {
+      populatePatientSelect('patientSelect', {
+        onChange: function() {
+          loadNurseNotes();
+        }
+      });
+      loadNurseNotes();
+
+      // Pre-fill nurse name from session
+      var username = localStorage.getItem('his_username');
+      if (username) document.getElementById('nurseName').value = username;
+
+      // Default date to today
+      var today = new Date().toISOString().split('T')[0];
+      document.getElementById('noteDate').value = today;
+    })();
+  </script>
+</body>
+</html>

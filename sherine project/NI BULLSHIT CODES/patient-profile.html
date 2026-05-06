@@ -1,0 +1,1107 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>NURplan - Patient Profile</title>
+  <link rel="stylesheet" href="style.css">
+  <style>
+    /* ── Checklist / checkbox group styles ── */
+    .checkbox-group {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px 20px;
+      margin-top: 6px;
+    }
+    .checkbox-group label {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      font-weight: 400;
+      font-size: 0.92rem;
+      cursor: pointer;
+      color: var(--text-secondary, #4b5563);
+    }
+    .checkbox-group input[type="checkbox"] {
+      width: 16px;
+      height: 16px;
+      cursor: pointer;
+      flex-shrink: 0;
+      appearance: none;
+      -webkit-appearance: none;
+      border: 2px solid #94a3b8;
+      border-radius: 4px;
+      background: #fff;
+      position: relative;
+      transition: background 0.15s, border-color 0.15s;
+    }
+    .checkbox-group input[type="checkbox"]:checked {
+      background: #16a34a;
+      border-color: #16a34a;
+    }
+    .checkbox-group input[type="checkbox"]:checked::after {
+      content: none;
+    }
+
+    /* Radio group (system condition) */
+    .radio-group {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px 18px;
+      margin-top: 4px;
+    }
+    .radio-group label {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      font-weight: 400;
+      font-size: 0.92rem;
+      cursor: pointer;
+      color: var(--text-secondary, #4b5563);
+    }
+    .radio-group input[type="radio"] {
+      accent-color: var(--primary, #0ea5e9);
+      cursor: pointer;
+    }
+
+    /* System exam block */
+    .system-block {
+      border: 1px solid var(--border, #e5e7eb);
+      border-radius: 10px;
+      padding: 16px 18px;
+      margin-bottom: 14px;
+      background: var(--bg-card, #fff);
+    }
+    .system-block-title {
+      font-weight: 600;
+      font-size: 0.95rem;
+      color: var(--text-primary, #111827);
+      margin-bottom: 10px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .system-block-title::before {
+      content: '';
+      display: inline-block;
+      width: 4px;
+      height: 16px;
+      background: var(--primary, #0ea5e9);
+      border-radius: 2px;
+    }
+    .system-sub-label {
+      font-size: 0.82rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+      color: var(--text-muted, #9ca3af);
+      margin: 10px 0 5px;
+    }
+    .system-notes {
+      margin-top: 10px;
+    }
+    .system-notes textarea {
+      min-height: 52px;
+      font-size: 0.88rem;
+    }
+
+    /* Complaint table */
+    .complaint-table-wrapper {
+      overflow-x: auto;
+      margin-top: 10px;
+    }
+    .complaint-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.9rem;
+    }
+    .complaint-table th {
+      background: var(--bg-secondary, #f3f4f6);
+      padding: 8px 12px;
+      text-align: left;
+      font-weight: 600;
+      color: var(--text-secondary, #4b5563);
+      border-bottom: 1px solid var(--border, #e5e7eb);
+    }
+    .complaint-table td {
+      padding: 6px 8px;
+      border-bottom: 1px solid var(--border, #e5e7eb);
+    }
+    .complaint-table input[type="text"] {
+      width: 100%;
+      padding: 5px 8px;
+      border: 1px solid var(--border, #e5e7eb);
+      border-radius: 6px;
+      font-size: 0.88rem;
+      background: var(--bg-input, #fff);
+      color: var(--text-primary, #111827);
+    }
+    .btn-add-row {
+      margin-top: 8px;
+      padding: 6px 14px;
+      border: 1.5px dashed var(--primary, #0ea5e9);
+      background: transparent;
+      color: var(--primary, #0ea5e9);
+      border-radius: 7px;
+      cursor: pointer;
+      font-size: 0.88rem;
+      font-weight: 500;
+      transition: background 0.15s;
+    }
+    .btn-add-row:hover {
+      background: rgba(14,165,233,0.07);
+    }
+    .btn-remove-row {
+      background: none;
+      border: none;
+      color: #ef4444;
+      cursor: pointer;
+      font-size: 1rem;
+      padding: 0 4px;
+    }
+
+    /* Age display badge */
+    .age-display {
+      margin-top: 6px;
+      font-size: 0.88rem;
+      color: var(--primary, #0ea5e9);
+      font-weight: 600;
+      min-height: 20px;
+    }
+
+    /* Save button override */
+    .btn-save-primary {
+      display: block;
+      width: 100%;
+      padding: 16px;
+      background: var(--primary, #0ea5e9);
+      color: #fff;
+      border: none;
+      border-radius: 10px;
+      font-size: 1.05rem;
+      font-weight: 700;
+      letter-spacing: 0.04em;
+      cursor: pointer;
+      margin-top: 24px;
+      transition: background 0.2s, transform 0.1s;
+      text-transform: uppercase;
+    }
+    .btn-save-primary:hover {
+      background: #0284c7;
+    }
+    .btn-save-primary:active {
+      transform: scale(0.99);
+    }
+
+    /* Ward type conditional */
+    #wardTypeGroup {
+      display: none;
+    }
+    #wardTypeGroup.visible {
+      display: block;
+    }
+
+    /* Gender inline */
+    .gender-row {
+      display: flex;
+      gap: 18px;
+      margin-top: 6px;
+      flex-wrap: wrap;
+    }
+    .gender-row label {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      font-weight: 400;
+      font-size: 0.92rem;
+      cursor: pointer;
+    }
+    .gender-row input[type="radio"] {
+      width: 16px;
+      height: 16px;
+      cursor: pointer;
+      appearance: none;
+      -webkit-appearance: none;
+      border: 2px solid #94a3b8;
+      border-radius: 50%;
+      background: #fff;
+      position: relative;
+      transition: background 0.15s, border-color 0.15s;
+      flex-shrink: 0;
+    }
+    .gender-row input[type="radio"]:checked {
+      background: #16a34a;
+      border-color: #16a34a;
+    }
+  </style>
+</head>
+<body>
+  <div class="dashboard-layout">
+    <aside class="sidebar">
+      <div class="sidebar-brand">
+        <div class="brand-icon"><img src="logo-nurplan.png" alt="NURplan Logo" style="width:36px;height:36px;object-fit:contain;border-radius:6px;"></div>
+        <h1>NURplan</h1>
+      </div>
+      <nav>
+        <ul class="sidebar-nav">
+          <li><a href="dashboard.html"><span class="nav-icon"><svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zM14 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z" /></svg></span>Dashboard</a></li>
+          <li><a href="patient-profile.html" class="active"><span class="nav-icon"><svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" /></svg></span>Patient Profile</a></li>
+          <li><a href="patient-records.html"><span class="nav-icon"><svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4" /></svg></span>Patient Records</a></li>
+          <li><a href="vital-signs.html"><span class="nav-icon"><svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4" /></svg></span>Vital Signs</a></li>
+          <li><a href="medication-sheet.html"><span class="nav-icon"><svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M19.428 15.428a2 2 0 00-1.022-.547l-2.387-.477a6 6 0 00-3.86.517l-.318.158a6 6 0 01-3.86.517L6.05 15.21a2 2 0 00-1.806.547M8 4h8l-1 1v5.172a2 2 0 00.586 1.414l5 5c1.26 1.26.367 3.414-1.415 3.414H4.828c-1.782 0-2.674-2.154-1.414-3.414l5-5A2 2 0 009 10.172V5L8 4z" /></svg></span>Medication Sheet</a></li>
+          <li><a href="doctor-orders.html"><span class="nav-icon"><svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" /></svg></span>Doctor Orders</a></li>
+          <li><a href="laboratory-sheet.html"><span class="nav-icon"><svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M19.428 15.428a2 2 0 00-1.022-.547l-2.387-.477a6 6 0 00-3.86.517l-.318.158a6 6 0 01-3.86.517L6.05 15.21a2 2 0 00-1.806.547M8 4h8l-1 1v5.172a2 2 0 00.586 1.414l5 5c1.26 1.26.367 3.414-1.415 3.414H4.828c-1.782 0-2.674-2.154-1.414-3.414l5-5A2 2 0 009 10.172V5L8 4z" /></svg></span>Laboratory Sheet</a></li>
+          <li><a href="nursing-care-plan.html"><span class="nav-icon"><svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4" /></svg></span>Nursing Care Plan</a></li>
+          <li><a href="nurse-notes.html"><span class="nav-icon"><svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" /></svg></span>Nurse Notes</a></li>
+          <li><a href="appointment-scheduling.html"><span class="nav-icon"><svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" /></svg></span>Appointments</a></li>
+        </ul>
+      </nav>
+    </aside>
+
+    <main class="main-content">
+      <header class="top-header">
+        <div class="header-left">
+          <h2 class="header-title">NeoNest Hospital</h2>
+          <span class="header-datetime" id="headerDateTime"></span>
+        </div>
+        <div class="header-right">
+          <div class="user-profile">
+            <div class="user-avatar" id="userAvatar">N</div>
+            <span class="user-label" id="userLabel">Nurse Dashboard</span>
+          </div>
+          <button type="button" class="header-logout" id="logoutButton">
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 11-6 0v-1" />
+            </svg>
+            <span>Logout</span>
+          </button>
+        </div>
+      </header>
+
+      <div class="content-area">
+        <h1 class="page-title">Patient Demographic Profile</h1>
+
+        <!-- Patient Selector -->
+        <div class="form-section">
+          <h3>Current Patient</h3>
+          <div class="form-row">
+            <div class="form-group">
+              <label for="patientSelect">Select Patient to View / Edit</label>
+              <select id="patientSelect">
+                <option value="">— Select patient —</option>
+              </select>
+            </div>
+          </div>
+        </div>
+
+        <form id="patientForm">
+
+          <!-- ════════════════════════════════════════
+               SECTION 1 · Patient Information & Clinical Profile
+               ════════════════════════════════════════ -->
+          <div class="form-section">
+            <h3>1. Patient Information &amp; Clinical Profile</h3>
+
+            <div class="form-row">
+              <div class="form-group">
+                <label for="hospitalNumber">Hospital Number</label>
+                <input type="text" id="hospitalNumber" placeholder="e.g. HN-2025-0001">
+              </div>
+              <div class="form-group">
+                <label for="patientName">Full Name <span style="color:#ef4444">*</span></label>
+                <input type="text" id="patientName" placeholder="Last, First Middle" required>
+              </div>
+            </div>
+
+            <div class="form-row">
+              <div class="form-group">
+                <label for="dateOfBirth">Date of Birth <span style="color:#ef4444">*</span></label>
+                <input type="date" id="dateOfBirth" required>
+                <div class="age-display" id="ageDisplay">Age will appear here after selecting a date of birth.</div>
+              </div>
+              <div class="form-group">
+                <label>Gender <span style="color:#ef4444">*</span></label>
+                <div class="gender-row">
+                  <label><input type="radio" name="gender" value="Male"> Male</label>
+                  <label><input type="radio" name="gender" value="Female"> Female</label>
+                  <label><input type="radio" name="gender" value="Other"> Other</label>
+                </div>
+              </div>
+            </div>
+
+            <div class="form-row">
+              <div class="form-group">
+                <label for="religion">Religion</label>
+                <select id="religion">
+                  <option value="">Select religion</option>
+                  <option value="Roman Catholic">Roman Catholic</option>
+                  <option value="Protestant (e.g., Baptist, Methodist, etc.)">Protestant (e.g., Baptist, Methodist, etc.)</option>
+                  <option value="Iglesia ni Cristo">Iglesia ni Cristo</option>
+                  <option value="Aglipayan (Philippine Independent Church)">Aglipayan (Philippine Independent Church)</option>
+                  <option value="Islam">Islam</option>
+                  <option value="Buddhism">Buddhism</option>
+                  <option value="Hinduism">Hinduism</option>
+                  <option value="Judaism">Judaism</option>
+                  <option value="Other Religion">Other Religion</option>
+                  <option value="None / No Religion">None / No Religion</option>
+                  <option value="Prefer not to say">Prefer not to say</option>
+                </select>
+              </div>
+              <div class="form-group">
+                <label for="nationality">Nationality</label>
+                <input type="text" id="nationality" placeholder="e.g. Filipino">
+              </div>
+              <div class="form-group">
+                <label for="contactNumber">Contact Number</label>
+                <input type="tel" id="contactNumber" placeholder="e.g. 09XX-XXX-XXXX">
+              </div>
+            </div>
+          </div>
+
+          <!-- ════════════════════════════════════════
+               SECTION 2 · Address Information
+               ════════════════════════════════════════ -->
+          <div class="form-section">
+            <h3>2. Address Information</h3>
+
+            <div class="form-row">
+              <div class="form-group">
+                <label for="cityMunicipality">City / Municipality (Cavite)</label>
+                <select id="cityMunicipality">
+                  <option value="">Select city / municipality</option>
+                  <option>Imus</option>
+                  <option>Bacoor</option>
+                  <option>Dasmariñas</option>
+                  <option>Cavite City</option>
+                  <option>General Trias</option>
+                  <option>Kawit</option>
+                  <option>Tanza</option>
+                  <option>Rosario</option>
+                  <option>Noveleta</option>
+                </select>
+              </div>
+              <div class="form-group">
+                <label for="barangay">Barangay</label>
+                <input type="text" id="barangay" placeholder="Barangay name">
+              </div>
+              <div class="form-group">
+                <label for="streetHouseNumber">Street / House Number</label>
+                <input type="text" id="streetHouseNumber" placeholder="House No., Street name">
+              </div>
+            </div>
+          </div>
+
+          <!-- ════════════════════════════════════════
+               SECTION 3 · Emergency Contact
+               ════════════════════════════════════════ -->
+          <div class="form-section">
+            <h3>3. Emergency Contact</h3>
+
+            <div class="form-row">
+              <div class="form-group">
+                <label for="emergencyName">Name of Emergency Contact</label>
+                <input type="text" id="emergencyName" placeholder="Full name">
+              </div>
+              <div class="form-group">
+                <label for="emergencyContact">Contact Number</label>
+                <input type="tel" id="emergencyContact" placeholder="e.g. 09XX-XXX-XXXX">
+              </div>
+              <div class="form-group">
+                <label for="emergencyRelationship">Relationship to Patient</label>
+                <input type="text" id="emergencyRelationship" placeholder="e.g. Mother, Father, Spouse">
+              </div>
+            </div>
+          </div>
+
+          <!-- ════════════════════════════════════════
+               SECTION 4 · Admission Details
+               ════════════════════════════════════════ -->
+          <div class="form-section">
+            <h3>4. Admission Details</h3>
+
+            <div class="form-row">
+              <div class="form-group">
+                <label for="dateAdmitted">Date Admitted <span style="color:#ef4444">*</span></label>
+                <input type="date" id="dateAdmitted" required>
+              </div>
+              <div class="form-group">
+                <label for="timeAdmitted">Time Admitted</label>
+                <input type="time" id="timeAdmitted">
+              </div>
+              <div class="form-group">
+                <label for="attendingPhysician">Attending Physician</label>
+                <input type="text" id="attendingPhysician" placeholder="Dr. Full Name">
+              </div>
+            </div>
+
+            <div class="form-row">
+              <div class="form-group">
+                <label for="attendingUnit">Attending Unit</label>
+                <select id="attendingUnit">
+                  <option value="">Select unit</option>
+                  <option value="ICU">ICU</option>
+                  <option value="NICU">NICU</option>
+                  <option value="ER">ER</option>
+                  <option value="General Ward">General Ward</option>
+                </select>
+              </div>
+              <div class="form-group" id="wardTypeGroup">
+                <label for="wardType">Ward Type</label>
+                <select id="wardType">
+                  <option value="">Select ward type</option>
+                  <option value="Medical Ward">Medical Ward</option>
+                  <option value="Surgical Ward">Surgical Ward</option>
+                  <option value="Pediatric Ward">Pediatric Ward</option>
+                  <option value="OB Ward">OB Ward</option>
+                </select>
+              </div>
+              <div class="form-group">
+                <label for="bedNumber">Bed Number</label>
+                <select id="bedNumber">
+                  <option value="">Select bed</option>
+                  <option>1</option><option>2</option><option>3</option>
+                  <option>4</option><option>5</option><option>6</option>
+                  <option>7</option><option>8</option><option>9</option>
+                  <option>10</option>
+                </select>
+              </div>
+            </div>
+          </div>
+
+          <!-- ════════════════════════════════════════
+               SECTION 5 · Chief Complaint & Allergies
+               ════════════════════════════════════════ -->
+          <div class="form-section">
+            <h3>5. Chief Complaint &amp; Allergies</h3>
+
+            <div class="form-group">
+              <label>A. Chief Complaint (select all that apply)</label>
+              <div class="checkbox-group" id="chiefComplaintChecks">
+                <label><input type="checkbox" name="chiefComplaint" value="Headache"> Headache</label>
+                <label><input type="checkbox" name="chiefComplaint" value="Fever"> Fever</label>
+                <label><input type="checkbox" name="chiefComplaint" value="Cough"> Cough</label>
+                <label><input type="checkbox" name="chiefComplaint" value="Diarrhea"> Diarrhea</label>
+                <label><input type="checkbox" name="chiefComplaint" value="Vomiting"> Vomiting</label>
+                <label><input type="checkbox" name="chiefComplaint" value="Abdominal Pain"> Abdominal Pain</label>
+                <label><input type="checkbox" name="chiefComplaint" value="Bleeding"> Bleeding</label>
+                <label><input type="checkbox" name="chiefComplaint" value="Difficulty Breathing"> Difficulty Breathing</label>
+                <label><input type="checkbox" name="chiefComplaint" value="Weakness"> Weakness</label>
+                <label id="otherComplaintCheckLabel"><input type="checkbox" name="chiefComplaint" value="Other" id="otherComplaintCheck"> Other</label>
+              </div>
+              <div id="otherComplaintInputWrap" style="margin-top:8px; display:none;">
+                <input type="text" id="otherComplaintText" placeholder="Describe other complaint...">
+              </div>
+            </div>
+
+            <div class="form-group" style="margin-top: 16px;">
+              <label>B. Other Complaints</label>
+              <div class="complaint-table-wrapper">
+                <table class="complaint-table" id="otherComplaintsTable">
+                  <thead>
+                    <tr>
+                      <th>Complaint</th>
+                      <th>Description / Notes</th>
+                      <th></th>
+                    </tr>
+                  </thead>
+                  <tbody id="otherComplaintsBody">
+                    <!-- rows added dynamically -->
+                  </tbody>
+                </table>
+              </div>
+              <button type="button" class="btn-add-row" id="addComplaintRow">+ Add Row</button>
+            </div>
+
+            <div class="form-group" style="margin-top: 16px;">
+              <label for="allergies">C. Allergies (food / drug / environmental)</label>
+              <input type="text" id="allergies" placeholder="e.g. Penicillin, shellfish, dust mites — or NKDA">
+            </div>
+          </div>
+
+          <!-- ════════════════════════════════════════
+               SECTION 6 · Physical Examination (System Review)
+               ════════════════════════════════════════ -->
+          <div class="form-section">
+            <h3>6. Physical Examination (System Review)</h3>
+
+            <!-- General Appearance -->
+            <div class="system-block">
+              <div class="system-block-title">General Appearance</div>
+              <div class="system-sub-label">Condition</div>
+              <div class="radio-group">
+                <label><input type="radio" name="sysGeneral" value="Well-looking"> Well-looking</label>
+                <label><input type="radio" name="sysGeneral" value="Weak-looking"> Weak-looking</label>
+                <label><input type="radio" name="sysGeneral" value="Acutely ill"> Acutely ill</label>
+              </div>
+              <div class="system-sub-label">Findings</div>
+              <div class="checkbox-group">
+                <label><input type="checkbox" name="sysGeneralFindings" value="Conscious and coherent"> Conscious and coherent</label>
+                <label><input type="checkbox" name="sysGeneralFindings" value="Lethargic"> Lethargic</label>
+                <label><input type="checkbox" name="sysGeneralFindings" value="Irritable"> Irritable</label>
+                <label><input type="checkbox" name="sysGeneralFindings" value="Febrile"> Febrile</label>
+                <label><input type="checkbox" name="sysGeneralFindings" value="Afebrile"> Afebrile</label>
+                <label><input type="checkbox" name="sysGeneralFindings" value="In respiratory distress"> In respiratory distress</label>
+              </div>
+              <div class="system-notes">
+                <textarea name="sysGeneralNotes" placeholder="Additional general appearance notes..."></textarea>
+              </div>
+            </div>
+
+            <!-- Integumentary -->
+            <div class="system-block">
+              <div class="system-block-title">Integumentary (Skin)</div>
+              <div class="system-sub-label">Condition</div>
+              <div class="radio-group">
+                <label><input type="radio" name="sysSkin" value="Normal"> Normal</label>
+                <label><input type="radio" name="sysSkin" value="Dry"> Dry</label>
+                <label><input type="radio" name="sysSkin" value="Abnormal"> Abnormal</label>
+              </div>
+              <div class="system-sub-label">Findings</div>
+              <div class="checkbox-group">
+                <label><input type="checkbox" name="sysSkinFindings" value="Warm to touch"> Warm to touch</label>
+                <label><input type="checkbox" name="sysSkinFindings" value="Poor skin turgor"> Poor skin turgor</label>
+                <label><input type="checkbox" name="sysSkinFindings" value="Pallor"> Pallor</label>
+                <label><input type="checkbox" name="sysSkinFindings" value="Jaundice"> Jaundice</label>
+                <label><input type="checkbox" name="sysSkinFindings" value="Cyanosis"> Cyanosis</label>
+                <label><input type="checkbox" name="sysSkinFindings" value="Rashes / lesions"> Rashes / lesions</label>
+                <label><input type="checkbox" name="sysSkinFindings" value="Edema"> Edema</label>
+              </div>
+              <div class="system-notes">
+                <textarea name="sysSkinNotes" placeholder="Additional skin findings..."></textarea>
+              </div>
+            </div>
+
+            <!-- HEENT -->
+            <div class="system-block">
+              <div class="system-block-title">HEENT (Head, Eyes, Ears, Nose, Throat)</div>
+              <div class="system-sub-label">Condition</div>
+              <div class="radio-group">
+                <label><input type="radio" name="sysHEENT" value="Normal"> Normal</label>
+                <label><input type="radio" name="sysHEENT" value="Mildly abnormal"> Mildly abnormal</label>
+                <label><input type="radio" name="sysHEENT" value="Abnormal"> Abnormal</label>
+              </div>
+              <div class="system-sub-label">Findings</div>
+              <div class="checkbox-group">
+                <label><input type="checkbox" name="sysHEENTFindings" value="Sunken eyes"> Sunken eyes</label>
+                <label><input type="checkbox" name="sysHEENTFindings" value="Dry mucous membranes"> Dry mucous membranes</label>
+                <label><input type="checkbox" name="sysHEENTFindings" value="Dry lips"> Dry lips</label>
+                <label><input type="checkbox" name="sysHEENTFindings" value="Ear discharge"> Ear discharge</label>
+                <label><input type="checkbox" name="sysHEENTFindings" value="Nasal flaring"> Nasal flaring</label>
+                <label><input type="checkbox" name="sysHEENTFindings" value="Congested nasal passages"> Congested nasal passages</label>
+                <label><input type="checkbox" name="sysHEENTFindings" value="Tonsillar enlargement"> Tonsillar enlargement</label>
+                <label><input type="checkbox" name="sysHEENTFindings" value="Icteric sclerae"> Icteric sclerae</label>
+              </div>
+              <div class="system-notes">
+                <textarea name="sysHEENTNotes" placeholder="Additional HEENT findings..."></textarea>
+              </div>
+            </div>
+
+            <!-- Respiratory -->
+            <div class="system-block">
+              <div class="system-block-title">Respiratory</div>
+              <div class="system-sub-label">Condition</div>
+              <div class="radio-group">
+                <label><input type="radio" name="sysResp" value="Normal"> Normal</label>
+                <label><input type="radio" name="sysResp" value="Tachypneic"> Tachypneic</label>
+                <label><input type="radio" name="sysResp" value="Distressed"> Distressed</label>
+              </div>
+              <div class="system-sub-label">Findings</div>
+              <div class="checkbox-group">
+                <label><input type="checkbox" name="sysRespFindings" value="Clear breath sounds"> Clear breath sounds</label>
+                <label><input type="checkbox" name="sysRespFindings" value="Crackles / rales"> Crackles / rales</label>
+                <label><input type="checkbox" name="sysRespFindings" value="Wheezing"> Wheezing</label>
+                <label><input type="checkbox" name="sysRespFindings" value="Retractions"> Retractions</label>
+                <label><input type="checkbox" name="sysRespFindings" value="Use of accessory muscles"> Use of accessory muscles</label>
+                <label><input type="checkbox" name="sysRespFindings" value="Cough (productive)"> Cough (productive)</label>
+                <label><input type="checkbox" name="sysRespFindings" value="Cough (non-productive)"> Cough (non-productive)</label>
+              </div>
+              <div class="system-notes">
+                <textarea name="sysRespNotes" placeholder="Additional respiratory findings..."></textarea>
+              </div>
+            </div>
+
+            <!-- Cardiovascular -->
+            <div class="system-block">
+              <div class="system-block-title">Cardiovascular</div>
+              <div class="system-sub-label">Condition</div>
+              <div class="radio-group">
+                <label><input type="radio" name="sysCardio" value="Normal"> Normal</label>
+                <label><input type="radio" name="sysCardio" value="Tachycardic"> Tachycardic</label>
+                <label><input type="radio" name="sysCardio" value="Abnormal"> Abnormal</label>
+              </div>
+              <div class="system-sub-label">Findings</div>
+              <div class="checkbox-group">
+                <label><input type="checkbox" name="sysCardioFindings" value="Regular rate and rhythm"> Regular rate and rhythm</label>
+                <label><input type="checkbox" name="sysCardioFindings" value="Murmur noted"> Murmur noted</label>
+                <label><input type="checkbox" name="sysCardioFindings" value="Capillary refill > 2s"> Capillary refill &gt; 2s</label>
+                <label><input type="checkbox" name="sysCardioFindings" value="Weak pulse"> Weak pulse</label>
+                <label><input type="checkbox" name="sysCardioFindings" value="Bounding pulse"> Bounding pulse</label>
+                <label><input type="checkbox" name="sysCardioFindings" value="Peripheral edema"> Peripheral edema</label>
+              </div>
+              <div class="system-notes">
+                <textarea name="sysCardioNotes" placeholder="Additional cardiovascular findings..."></textarea>
+              </div>
+            </div>
+
+            <!-- Gastrointestinal -->
+            <div class="system-block">
+              <div class="system-block-title">Gastrointestinal</div>
+              <div class="system-sub-label">Condition</div>
+              <div class="radio-group">
+                <label><input type="radio" name="sysGI" value="Normal"> Normal</label>
+                <label><input type="radio" name="sysGI" value="Distended abdomen"> Distended abdomen</label>
+                <label><input type="radio" name="sysGI" value="Abnormal"> Abnormal</label>
+              </div>
+              <div class="system-sub-label">Findings</div>
+              <div class="checkbox-group">
+                <label><input type="checkbox" name="sysGIFindings" value="Soft, non-tender abdomen"> Soft, non-tender abdomen</label>
+                <label><input type="checkbox" name="sysGIFindings" value="Abdominal tenderness"> Abdominal tenderness</label>
+                <label><input type="checkbox" name="sysGIFindings" value="Hyperactive bowel sounds"> Hyperactive bowel sounds</label>
+                <label><input type="checkbox" name="sysGIFindings" value="Hypoactive bowel sounds"> Hypoactive bowel sounds</label>
+                <label><input type="checkbox" name="sysGIFindings" value="Vomiting"> Vomiting</label>
+                <label><input type="checkbox" name="sysGIFindings" value="Diarrhea"> Diarrhea</label>
+                <label><input type="checkbox" name="sysGIFindings" value="Blood in stool"> Blood in stool</label>
+              </div>
+              <div class="system-notes">
+                <textarea name="sysGINotes" placeholder="Additional GI findings..."></textarea>
+              </div>
+            </div>
+
+            <!-- Genitourinary -->
+            <div class="system-block">
+              <div class="system-block-title">Genitourinary</div>
+              <div class="system-sub-label">Condition</div>
+              <div class="radio-group">
+                <label><input type="radio" name="sysGU" value="Normal"> Normal</label>
+                <label><input type="radio" name="sysGU" value="Oliguria"> Oliguria</label>
+                <label><input type="radio" name="sysGU" value="Abnormal"> Abnormal</label>
+              </div>
+              <div class="system-sub-label">Findings</div>
+              <div class="checkbox-group">
+                <label><input type="checkbox" name="sysGUFindings" value="Adequate urine output"> Adequate urine output</label>
+                <label><input type="checkbox" name="sysGUFindings" value="Concentrated urine (dark)"> Concentrated urine (dark)</label>
+                <label><input type="checkbox" name="sysGUFindings" value="Hematuria"> Hematuria</label>
+                <label><input type="checkbox" name="sysGUFindings" value="Dysuria"> Dysuria</label>
+                <label><input type="checkbox" name="sysGUFindings" value="Decreased wet diapers"> Decreased wet diapers</label>
+                <label><input type="checkbox" name="sysGUFindings" value="No void noted"> No void noted</label>
+              </div>
+              <div class="system-notes">
+                <textarea name="sysGUNotes" placeholder="Additional GU findings..."></textarea>
+              </div>
+            </div>
+
+            <!-- Musculoskeletal -->
+            <div class="system-block">
+              <div class="system-block-title">Musculoskeletal</div>
+              <div class="system-sub-label">Condition</div>
+              <div class="radio-group">
+                <label><input type="radio" name="sysMusculo" value="Normal"> Normal</label>
+                <label><input type="radio" name="sysMusculo" value="Limited ROM"> Limited ROM</label>
+                <label><input type="radio" name="sysMusculo" value="Abnormal"> Abnormal</label>
+              </div>
+              <div class="system-sub-label">Findings</div>
+              <div class="checkbox-group">
+                <label><input type="checkbox" name="sysMusculoFindings" value="Full range of motion"> Full range of motion</label>
+                <label><input type="checkbox" name="sysMusculoFindings" value="Muscle weakness"> Muscle weakness</label>
+                <label><input type="checkbox" name="sysMusculoFindings" value="Joint swelling"> Joint swelling</label>
+                <label><input type="checkbox" name="sysMusculoFindings" value="Deformity noted"> Deformity noted</label>
+                <label><input type="checkbox" name="sysMusculoFindings" value="Pain on movement"> Pain on movement</label>
+                <label><input type="checkbox" name="sysMusculoFindings" value="Hypotonia"> Hypotonia</label>
+              </div>
+              <div class="system-notes">
+                <textarea name="sysMusculoNotes" placeholder="Additional musculoskeletal findings..."></textarea>
+              </div>
+            </div>
+
+            <!-- Neurological -->
+            <div class="system-block">
+              <div class="system-block-title">Neurological</div>
+              <div class="system-sub-label">Condition</div>
+              <div class="radio-group">
+                <label><input type="radio" name="sysNeuro" value="Normal"> Normal</label>
+                <label><input type="radio" name="sysNeuro" value="Altered LOC"> Altered LOC</label>
+                <label><input type="radio" name="sysNeuro" value="Abnormal"> Abnormal</label>
+              </div>
+              <div class="system-sub-label">Findings</div>
+              <div class="checkbox-group">
+                <label><input type="checkbox" name="sysNeuroFindings" value="Alert and oriented"> Alert and oriented</label>
+                <label><input type="checkbox" name="sysNeuroFindings" value="Confused"> Confused</label>
+                <label><input type="checkbox" name="sysNeuroFindings" value="Seizure activity"> Seizure activity</label>
+                <label><input type="checkbox" name="sysNeuroFindings" value="Pupils equal and reactive"> Pupils equal and reactive</label>
+                <label><input type="checkbox" name="sysNeuroFindings" value="Pupils unequal"> Pupils unequal</label>
+                <label><input type="checkbox" name="sysNeuroFindings" value="Nuchal rigidity"> Nuchal rigidity</label>
+                <label><input type="checkbox" name="sysNeuroFindings" value="Bulging fontanelle"> Bulging fontanelle</label>
+              </div>
+              <div class="system-notes">
+                <textarea name="sysNeuroNotes" placeholder="Additional neurological findings..."></textarea>
+              </div>
+            </div>
+
+          </div><!-- end physical exam section -->
+
+          <!-- ════════════════════════════════════════
+               SAVE BUTTON
+               ════════════════════════════════════════ -->
+          <div class="form-section" style="padding-bottom: 8px;">
+            <button type="submit" class="btn-save-primary">
+              SAVE PATIENT RECORD
+            </button>
+            <div style="margin-top: 12px;">
+              <button type="button" class="btn-clear" id="clearPatient">Delete Selected Patient</button>
+            </div>
+          </div>
+
+        </form><!-- end #patientForm -->
+
+        <!-- Saved info panel -->
+        <div class="saved-info" id="savedInfo" style="display: none;">
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; flex-wrap: wrap; gap: 12px;">
+            <h3 style="margin: 0;">Selected Patient Information</h3>
+          </div>
+          <div class="info-grid" id="infoGrid"></div>
+        </div>
+
+      </div><!-- end content-area -->
+    </main>
+  </div>
+
+  <script src="script.js"></script>
+  <script>
+    // ─── Age auto-calculation ───────────────────────────────────────────────
+    function calcAge(dobString) {
+      if (!dobString) return '';
+      const dob = new Date(dobString);
+      const now = new Date();
+      if (isNaN(dob)) return '';
+      let years = now.getFullYear() - dob.getFullYear();
+      let months = now.getMonth() - dob.getMonth();
+      if (months < 0 || (months === 0 && now.getDate() < dob.getDate())) {
+        years--;
+        months += 12;
+      }
+      if (now.getDate() < dob.getDate()) months--;
+      const totalMonths = years * 12 + months;
+      if (totalMonths < 24) {
+        const m = totalMonths === 1 ? 'month' : 'months';
+        return totalMonths + ' ' + m;
+      }
+      const y = years === 1 ? 'year' : 'years';
+      return years + ' ' + y;
+    }
+
+    document.getElementById('dateOfBirth').addEventListener('change', function() {
+      const display = document.getElementById('ageDisplay');
+      const age = calcAge(this.value);
+      display.textContent = age ? 'Computed age: ' + age : '';
+    });
+
+    // ─── Ward Type conditional ──────────────────────────────────────────────
+    document.getElementById('attendingUnit').addEventListener('change', function() {
+      const wardGroup = document.getElementById('wardTypeGroup');
+      if (this.value === 'General Ward') {
+        wardGroup.classList.add('visible');
+      } else {
+        wardGroup.classList.remove('visible');
+        document.getElementById('wardType').value = '';
+      }
+    });
+
+    // ─── Other complaint text toggle ────────────────────────────────────────
+    document.getElementById('otherComplaintCheck').addEventListener('change', function() {
+      document.getElementById('otherComplaintInputWrap').style.display = this.checked ? 'block' : 'none';
+    });
+
+    // ─── Other complaints table rows ─────────────────────────────────────────
+    function addComplaintRow(complaint, description) {
+      const tbody = document.getElementById('otherComplaintsBody');
+      const tr = document.createElement('tr');
+      tr.innerHTML = `
+        <td><input type="text" placeholder="Complaint" value="${complaint || ''}"></td>
+        <td><input type="text" placeholder="Description / Notes" value="${description || ''}"></td>
+        <td><button type="button" class="btn-remove-row" title="Remove">✕</button></td>
+      `;
+      tr.querySelector('.btn-remove-row').addEventListener('click', function() { tr.remove(); });
+      tbody.appendChild(tr);
+    }
+
+    document.getElementById('addComplaintRow').addEventListener('click', function() {
+      addComplaintRow();
+    });
+
+    // ─── Collect / set checkbox groups ─────────────────────────────────────
+    function getCheckedValues(name) {
+      return Array.from(document.querySelectorAll('input[name="' + name + '"]:checked')).map(el => el.value);
+    }
+    function setCheckedValues(name, values) {
+      const arr = values || [];
+      document.querySelectorAll('input[name="' + name + '"]').forEach(function(el) {
+        el.checked = arr.indexOf(el.value) !== -1;
+      });
+    }
+    function getRadioValue(name) {
+      const el = document.querySelector('input[name="' + name + '"]:checked');
+      return el ? el.value : '';
+    }
+    function setRadioValue(name, value) {
+      document.querySelectorAll('input[name="' + name + '"]').forEach(function(el) {
+        el.checked = el.value === value;
+      });
+    }
+    function getTextareaByName(name) {
+      const el = document.querySelector('textarea[name="' + name + '"]');
+      return el ? el.value : '';
+    }
+    function setTextareaByName(name, value) {
+      const el = document.querySelector('textarea[name="' + name + '"]');
+      if (el) el.value = value || '';
+    }
+
+    // ─── Build other complaints rows from stored data ────────────────────────
+    function buildOtherComplaintsRows(rows) {
+      document.getElementById('otherComplaintsBody').innerHTML = '';
+      (rows || []).forEach(function(r) { addComplaintRow(r.complaint, r.description); });
+    }
+
+    // ─── Read other complaints rows ─────────────────────────────────────────
+    function readOtherComplaintsRows() {
+      const rows = [];
+      document.querySelectorAll('#otherComplaintsBody tr').forEach(function(tr) {
+        const inputs = tr.querySelectorAll('input[type="text"]');
+        const complaint = inputs[0] ? inputs[0].value.trim() : '';
+        const description = inputs[1] ? inputs[1].value.trim() : '';
+        if (complaint || description) rows.push({ complaint, description });
+      });
+      return rows;
+    }
+
+    // ─── Fill form from patient object ──────────────────────────────────────
+    function fillPatientForm(p) {
+      document.getElementById('hospitalNumber').value = p ? (p.hospitalNumber || '') : '';
+      document.getElementById('patientName').value = p ? (p.name || '') : '';
+      document.getElementById('dateOfBirth').value = p ? (p.dob || '') : '';
+      document.getElementById('ageDisplay').textContent = p && p.dob ? 'Computed age: ' + calcAge(p.dob) : '';
+      setRadioValue('gender', p ? (p.gender || '') : '');
+      document.getElementById('religion').value = p ? (p.religion || '') : '';
+      document.getElementById('nationality').value = p ? (p.nationality || '') : '';
+      document.getElementById('contactNumber').value = p ? (p.contact || '') : '';
+
+      document.getElementById('cityMunicipality').value = p ? (p.city || '') : '';
+      document.getElementById('barangay').value = p ? (p.barangay || '') : '';
+      document.getElementById('streetHouseNumber').value = p ? (p.street || '') : '';
+
+      document.getElementById('emergencyName').value = p ? (p.emergencyName || '') : '';
+      document.getElementById('emergencyContact').value = p ? (p.emergencyContact || '') : '';
+      document.getElementById('emergencyRelationship').value = p ? (p.emergencyRelationship || '') : '';
+
+      document.getElementById('dateAdmitted').value = p ? (p.dateAdmitted || '') : '';
+      document.getElementById('timeAdmitted').value = p ? (p.timeAdmitted || '') : '';
+      document.getElementById('attendingPhysician').value = p ? (p.attendingPhysician || '') : '';
+      document.getElementById('attendingUnit').value = p ? (p.attendingUnit || '') : '';
+      const wardGroup = document.getElementById('wardTypeGroup');
+      if (p && p.attendingUnit === 'General Ward') {
+        wardGroup.classList.add('visible');
+        document.getElementById('wardType').value = p.wardType || '';
+      } else {
+        wardGroup.classList.remove('visible');
+        document.getElementById('wardType').value = '';
+      }
+      document.getElementById('bedNumber').value = p ? (p.bedNumber || '') : '';
+
+      // Chief complaint checkboxes
+      setCheckedValues('chiefComplaint', p ? (p.chiefComplaints || []) : []);
+      const otherChecked = p && (p.chiefComplaints || []).indexOf('Other') !== -1;
+      document.getElementById('otherComplaintCheck').checked = otherChecked;
+      document.getElementById('otherComplaintInputWrap').style.display = otherChecked ? 'block' : 'none';
+      document.getElementById('otherComplaintText').value = p ? (p.chiefComplaintOtherText || '') : '';
+
+      buildOtherComplaintsRows(p ? (p.otherComplaints || []) : []);
+      document.getElementById('allergies').value = p ? (p.allergies || '') : '';
+
+      // Physical exam systems
+      const systems = [
+        { cond: 'sysGeneral', find: 'sysGeneralFindings', notes: 'sysGeneralNotes' },
+        { cond: 'sysSkin',    find: 'sysSkinFindings',    notes: 'sysSkinNotes'    },
+        { cond: 'sysHEENT',  find: 'sysHEENTFindings',   notes: 'sysHEENTNotes'  },
+        { cond: 'sysResp',   find: 'sysRespFindings',    notes: 'sysRespNotes'   },
+        { cond: 'sysCardio', find: 'sysCardioFindings',  notes: 'sysCardioNotes' },
+        { cond: 'sysGI',     find: 'sysGIFindings',      notes: 'sysGINotes'     },
+        { cond: 'sysGU',     find: 'sysGUFindings',      notes: 'sysGUNotes'     },
+        { cond: 'sysMusculo',find: 'sysMusculoFindings', notes: 'sysMusculoNotes'},
+        { cond: 'sysNeuro',  find: 'sysNeuroFindings',   notes: 'sysNeuroNotes'  }
+      ];
+      const pe = p ? (p.physicalExam || {}) : {};
+      systems.forEach(function(s) {
+        setRadioValue(s.cond, pe[s.cond] || '');
+        setCheckedValues(s.find, pe[s.find] || []);
+        setTextareaByName(s.notes, pe[s.notes] || '');
+      });
+    }
+
+    // ─── Display saved info panel ────────────────────────────────────────────
+    function displaySavedInfo(p) {
+      const el = document.getElementById('savedInfo');
+      const grid = document.getElementById('infoGrid');
+      if (!p) { el.style.display = 'none'; grid.innerHTML = ''; return; }
+      el.style.display = 'block';
+      const age = calcAge(p.dob);
+      const address = [p.street, p.barangay, p.city].filter(Boolean).join(', ');
+      const pe = p.physicalExam || {};
+      grid.innerHTML = `
+        <div class="info-item"><strong>Hospital Number</strong>${escapeHtml(p.hospitalNumber) || '—'}</div>
+        <div class="info-item"><strong>Full Name</strong>${escapeHtml(p.name) || '—'}</div>
+        <div class="info-item"><strong>Date of Birth</strong>${escapeHtml(p.dob) || '—'}</div>
+        <div class="info-item"><strong>Age</strong>${escapeHtml(age) || '—'}</div>
+        <div class="info-item"><strong>Gender</strong>${escapeHtml(p.gender) || '—'}</div>
+        <div class="info-item"><strong>Religion</strong>${escapeHtml(p.religion) || '—'}</div>
+        <div class="info-item"><strong>Nationality</strong>${escapeHtml(p.nationality) || '—'}</div>
+        <div class="info-item"><strong>Contact Number</strong>${escapeHtml(p.contact) || '—'}</div>
+        <div class="info-item" style="grid-column:1/-1"><strong>Address</strong>${escapeHtml(address) || '—'}</div>
+        <div class="info-item"><strong>Emergency Contact</strong>${escapeHtml(p.emergencyName) || '—'}</div>
+        <div class="info-item"><strong>Emergency No.</strong>${escapeHtml(p.emergencyContact) || '—'}</div>
+        <div class="info-item"><strong>Relationship</strong>${escapeHtml(p.emergencyRelationship) || '—'}</div>
+        <div class="info-item"><strong>Date Admitted</strong>${escapeHtml(p.dateAdmitted) || '—'}</div>
+        <div class="info-item"><strong>Time Admitted</strong>${escapeHtml(p.timeAdmitted) || '—'}</div>
+        <div class="info-item"><strong>Attending Physician</strong>${escapeHtml(p.attendingPhysician) || '—'}</div>
+        <div class="info-item"><strong>Attending Unit</strong>${escapeHtml(p.attendingUnit) || '—'}${p.wardType ? ' — ' + escapeHtml(p.wardType) : ''}</div>
+        <div class="info-item"><strong>Bed Number</strong>${escapeHtml(p.bedNumber) || '—'}</div>
+        <div class="info-item"><strong>Chief Complaints</strong>${escapeHtml((p.chiefComplaints || []).join(', ')) || '—'}</div>
+        <div class="info-item"><strong>Allergies</strong>${escapeHtml(p.allergies) || '—'}</div>
+      `;
+    }
+
+    // ─── Collect form data ───────────────────────────────────────────────────
+    function collectFormData() {
+      const systems = [
+        { cond: 'sysGeneral', find: 'sysGeneralFindings', notes: 'sysGeneralNotes' },
+        { cond: 'sysSkin',    find: 'sysSkinFindings',    notes: 'sysSkinNotes'    },
+        { cond: 'sysHEENT',  find: 'sysHEENTFindings',   notes: 'sysHEENTNotes'  },
+        { cond: 'sysResp',   find: 'sysRespFindings',    notes: 'sysRespNotes'   },
+        { cond: 'sysCardio', find: 'sysCardioFindings',  notes: 'sysCardioNotes' },
+        { cond: 'sysGI',     find: 'sysGIFindings',      notes: 'sysGINotes'     },
+        { cond: 'sysGU',     find: 'sysGUFindings',      notes: 'sysGUNotes'     },
+        { cond: 'sysMusculo',find: 'sysMusculoFindings', notes: 'sysMusculoNotes'},
+        { cond: 'sysNeuro',  find: 'sysNeuroFindings',   notes: 'sysNeuroNotes'  }
+      ];
+      const pe = {};
+      systems.forEach(function(s) {
+        pe[s.cond] = getRadioValue(s.cond);
+        pe[s.find] = getCheckedValues(s.find);
+        pe[s.notes] = getTextareaByName(s.notes);
+      });
+
+      const chiefComplaints = getCheckedValues('chiefComplaint');
+      const dob = document.getElementById('dateOfBirth').value;
+
+      return {
+        hospitalNumber: document.getElementById('hospitalNumber').value.trim(),
+        name: document.getElementById('patientName').value.trim(),
+        dob: dob,
+        age: dob ? { computed: calcAge(dob) } : null,
+        gender: getRadioValue('gender'),
+        religion: document.getElementById('religion').value.trim(),
+        nationality: document.getElementById('nationality').value.trim(),
+        contact: document.getElementById('contactNumber').value.trim(),
+
+        city: document.getElementById('cityMunicipality').value,
+        barangay: document.getElementById('barangay').value.trim(),
+        street: document.getElementById('streetHouseNumber').value.trim(),
+
+        emergencyName: document.getElementById('emergencyName').value.trim(),
+        emergencyContact: document.getElementById('emergencyContact').value.trim(),
+        emergencyRelationship: document.getElementById('emergencyRelationship').value.trim(),
+
+        dateAdmitted: document.getElementById('dateAdmitted').value,
+        timeAdmitted: document.getElementById('timeAdmitted').value,
+        attendingPhysician: document.getElementById('attendingPhysician').value.trim(),
+        attendingUnit: document.getElementById('attendingUnit').value,
+        wardType: document.getElementById('wardType').value,
+        bedNumber: document.getElementById('bedNumber').value,
+
+        chiefComplaints: chiefComplaints,
+        chiefComplaintOtherText: document.getElementById('otherComplaintText').value.trim(),
+        otherComplaints: readOtherComplaintsRows(),
+        allergies: document.getElementById('allergies').value.trim(),
+
+        physicalExam: pe
+      };
+    }
+
+    // ─── Refresh patient select dropdown ─────────────────────────────────────
+    function refreshPatientSelect() {
+      populatePatientSelect('patientSelect', {
+        onChange: function() {
+          const current = getSelectedPatient();
+          fillPatientForm(current);
+          displaySavedInfo(current);
+        }
+      });
+    }
+
+    // ─── Delete patient ──────────────────────────────────────────────────────
+    document.getElementById('clearPatient').addEventListener('click', function() {
+      const selectedId = getSelectedPatientId();
+      if (!selectedId) { alert('Select a patient to delete.'); return; }
+      if (confirm('Delete this patient? This cannot be undone.')) {
+        const patients = getPatients().filter(function(p) { return p.id !== selectedId; });
+        savePatients(patients);
+        setSelectedPatientId(null);
+        document.getElementById('patientForm').reset();
+        document.getElementById('ageDisplay').textContent = '';
+        document.getElementById('wardTypeGroup').classList.remove('visible');
+        document.getElementById('otherComplaintsBody').innerHTML = '';
+        displaySavedInfo(null);
+        refreshPatientSelect();
+        if (typeof refreshDashboard === 'function') refreshDashboard();
+      }
+    });
+
+    // ─── Save patient ────────────────────────────────────────────────────────
+    document.getElementById('patientForm').addEventListener('submit', function(e) {
+      e.preventDefault();
+      const data = collectFormData();
+      if (!data.name) { alert('Please enter the patient\'s full name.'); return; }
+      if (!data.dob)  { alert('Please enter the date of birth.'); return; }
+
+      const patients = getPatients();
+      const existingId = getSelectedPatientId();
+      let patientId = existingId;
+
+      if (existingId) {
+        const existing = patients.find(function(p) { return p.id === existingId; });
+        if (existing) {
+          Object.assign(existing, data);
+        } else {
+          patientId = 'p-' + Date.now().toString();
+          patients.push(Object.assign({ id: patientId }, data));
+        }
+      } else {
+        patientId = 'p-' + Date.now().toString();
+        patients.push(Object.assign({ id: patientId }, data));
+      }
+
+      savePatients(patients);
+      setSelectedPatientId(patientId);
+      refreshPatientSelect();
+
+      const saved = patients.find(function(p) { return p.id === patientId; });
+      displaySavedInfo(saved || null);
+      if (typeof refreshDashboard === 'function') refreshDashboard();
+      alert('Patient record saved successfully.');
+    });
+
+    // ─── Init ────────────────────────────────────────────────────────────────
+    (function initPatientProfile() {
+      // Add one empty complaint row by default
+      addComplaintRow();
+
+      refreshPatientSelect();
+      const current = getSelectedPatient();
+      if (current) {
+        document.getElementById('patientSelect').value = current.id;
+      }
+      fillPatientForm(current);
+      displaySavedInfo(current);
+    })();
+  </script>
+</body>
+</html>

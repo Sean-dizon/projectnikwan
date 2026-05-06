@@ -1,0 +1,477 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>NURplan - Vital Signs & I&O</title>
+  <link rel="stylesheet" href="style.css">
+  <style>
+    .io-totals-row {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 16px;
+      margin-top: 12px;
+    }
+    .io-total-box {
+      background: var(--bg-hover, #f0f9ff);
+      border: 1.5px solid var(--primary, #0ea5e9);
+      border-radius: 10px;
+      padding: 14px 18px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    .io-total-label {
+      font-size: 0.9rem;
+      font-weight: 600;
+      color: var(--text-secondary, #4b5563);
+    }
+    .io-total-value {
+      font-size: 1.25rem;
+      font-weight: 700;
+      color: var(--primary, #0ea5e9);
+    }
+    .io-section-divider {
+      font-size: 0.75rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: var(--text-muted, #9ca3af);
+      margin: 8px 0 4px;
+      padding-bottom: 4px;
+      border-bottom: 1px dashed var(--border, #e5e7eb);
+    }
+  </style>
+</head>
+<body>
+  <div class="dashboard-layout">
+    <aside class="sidebar">
+      <div class="sidebar-brand">
+        <div class="brand-icon"><img src="logo-nurplan.png" alt="NURplan Logo" style="width:36px;height:36px;object-fit:contain;border-radius:6px;"></div>
+        <h1>NURplan</h1>
+      </div>
+      <nav>
+        <ul class="sidebar-nav">
+          <li><a href="dashboard.html"><span class="nav-icon"><svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zM14 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z" /></svg></span>Dashboard</a></li>
+          <li><a href="patient-profile.html"><span class="nav-icon"><svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" /></svg></span>Patient Profile</a></li>
+          <li><a href="patient-records.html"><span class="nav-icon"><svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4" /></svg></span>Patient Records</a></li>
+          <li><a href="vital-signs.html" class="active"><span class="nav-icon"><svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4" /></svg></span>Vital Signs &amp; I/O</a></li>
+          <li><a href="medication-sheet.html"><span class="nav-icon"><svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M19.428 15.428a2 2 0 00-1.022-.547l-2.387-.477a6 6 0 00-3.86.517l-.318.158a6 6 0 01-3.86.517L6.05 15.21a2 2 0 00-1.806.547M8 4h8l-1 1v5.172a2 2 0 00.586 1.414l5 5c1.26 1.26.367 3.414-1.415 3.414H4.828c-1.782 0-2.674-2.154-1.414-3.414l5-5A2 2 0 009 10.172V5L8 4z" /></svg></span>Medication Sheet</a></li>
+          <li><a href="doctor-orders.html"><span class="nav-icon"><svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" /></svg></span>Doctor Orders</a></li>
+          <li><a href="laboratory-sheet.html"><span class="nav-icon"><svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M19.428 15.428a2 2 0 00-1.022-.547l-2.387-.477a6 6 0 00-3.86.517l-.318.158a6 6 0 01-3.86.517L6.05 15.21a2 2 0 00-1.806.547M8 4h8l-1 1v5.172a2 2 0 00.586 1.414l5 5c1.26 1.26.367 3.414-1.415 3.414H4.828c-1.782 0-2.674-2.154-1.414-3.414l5-5A2 2 0 009 10.172V5L8 4z" /></svg></span>Laboratory Sheet</a></li>
+          <li><a href="nursing-care-plan.html"><span class="nav-icon"><svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4" /></svg></span>Nursing Care Plan</a></li>
+          <li><a href="nurse-notes.html"><span class="nav-icon"><svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" /></svg></span>Nurse Notes</a></li>
+          <li><a href="appointment-scheduling.html"><span class="nav-icon"><svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" /></svg></span>Appointments</a></li>
+        </ul>
+      </nav>
+    </aside>
+
+    <main class="main-content">
+      <header class="top-header">
+        <div class="header-left">
+          <h2 class="header-title">NeoNest Hospital</h2>
+          <span class="header-datetime" id="headerDateTime"></span>
+        </div>
+        <div class="header-right">
+          <div class="user-profile">
+            <div class="user-avatar" id="userAvatar">N</div>
+            <span class="user-label" id="userLabel">Nurse Dashboard</span>
+          </div>
+          <button type="button" class="header-logout" id="logoutButton">
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 11-6 0v-1" />
+            </svg>
+            <span>Logout</span>
+          </button>
+        </div>
+      </header>
+
+      <div class="content-area">
+
+        <!-- ═══════════════ VITAL SIGNS ═══════════════ -->
+        <h1 class="page-title">Vital Signs &amp; I/O</h1>
+
+        <div class="form-section">
+          <h3>Current Patient</h3>
+          <div class="form-row">
+            <div class="form-group">
+              <label for="patientSelect">Select Patient</label>
+              <select id="patientSelect">
+                <option value="">Select patient</option>
+              </select>
+            </div>
+          </div>
+        </div>
+
+        <div class="form-section">
+          <h3>Record Vital Signs &amp; I/O</h3>
+          <form id="vitalForm">
+            <div class="form-row">
+              <div class="form-group">
+                <label for="shift">Shift</label>
+                <select id="shift" required>
+                  <option value="">Select shift</option>
+                  <option value="6:00 AM - 2:00 PM">6:00 AM - 2:00 PM</option>
+                  <option value="2:00 PM - 10:00 PM">2:00 PM - 10:00 PM</option>
+                  <option value="10:00 PM - 6:00 AM">10:00 PM - 6:00 AM</option>
+                </select>
+              </div>
+              <div class="form-group">
+                <label for="vitalDate">Date</label>
+                <input type="date" id="vitalDate" required>
+              </div>
+              <div class="form-group">
+                <label for="vitalTime">Time</label>
+                <input type="time" id="vitalTime" required>
+              </div>
+            </div>
+            <div class="form-row" style="grid-template-columns: repeat(5, 1fr);">
+              <div class="form-group">
+                <label for="temperature">Temperature (°C)</label>
+                <input type="text" id="temperature" placeholder="e.g. 36.5" required>
+              </div>
+              <div class="form-group">
+                <label for="bloodPressure">Blood Pressure</label>
+                <input type="text" id="bloodPressure" placeholder="e.g. 120/80" required>
+              </div>
+              <div class="form-group">
+                <label for="pulseRate">Pulse Rate (bpm)</label>
+                <input type="number" id="pulseRate" placeholder="e.g. 72" min="1" required>
+              </div>
+              <div class="form-group">
+                <label for="respiratoryRate">Respiratory Rate (/min)</label>
+                <input type="number" id="respiratoryRate" placeholder="e.g. 16" min="1" required>
+              </div>
+              <div class="form-group">
+                <label for="oxygenSaturation">O2 Saturation / SpO2 (%)</label>
+                <input type="number" id="oxygenSaturation" placeholder="e.g. 98" min="1" max="100" required>
+              </div>
+            </div>
+            <div class="form-row">
+              <div class="form-group" style="grid-column: 1 / -1;">
+                <label for="vitalNotes">Notes / Physical Findings (optional)</label>
+                <textarea id="vitalNotes" placeholder="Sunken eyes, dry lips, poor skin turgor, capillary refill, irritability, activity level..."></textarea>
+              </div>
+            </div>
+            <button type="submit" class="btn-save">Save</button>
+          </form>
+        </div>
+
+        <div class="data-table-section">
+          <div class="table-header">
+            <h3>Vital Signs &amp; I/O Records</h3>
+            <button type="button" class="btn-clear" id="clearVitals">Clear All Records</button>
+          </div>
+          <div class="table-wrapper">
+            <table class="data-table">
+              <thead>
+                <tr>
+                  <th>Shift</th>
+                  <th>Temperature</th>
+                  <th>Blood Pressure</th>
+                  <th>Pulse Rate</th>
+                  <th>Respiratory Rate</th>
+                  <th>SpO2 (%)</th>
+                  <th>Date &amp; Time</th>
+                  <th>Notes / Clinical Findings</th>
+                </tr>
+              </thead>
+              <tbody id="vitalTableBody">
+                <tr><td colspan="8" style="text-align: center; color: var(--text-muted);">No records yet. Add vital signs above.</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <!-- ═══════════════ INTAKE AND OUTPUT ═══════════════ -->
+        <h1 class="page-title" style="margin-top: 40px;">Intake and Output</h1>
+
+        <div class="form-section">
+          <h3>Record Intake and Output</h3>
+          <form id="ioForm">
+            <!-- Time documentation -->
+            <div class="form-row">
+              <div class="form-group">
+                <label for="ioShift">Shift</label>
+                <select id="ioShift" required>
+                  <option value="">Select shift</option>
+                  <option value="6:00 AM - 2:00 PM">6:00 AM - 2:00 PM</option>
+                  <option value="2:00 PM - 10:00 PM">2:00 PM - 10:00 PM</option>
+                  <option value="10:00 PM - 6:00 AM">10:00 PM - 6:00 AM</option>
+                </select>
+              </div>
+              <div class="form-group">
+                <label for="ioDate">Date</label>
+                <input type="date" id="ioDate" required>
+              </div>
+              <div class="form-group">
+                <label for="ioTime">Time</label>
+                <input type="time" id="ioTime" required>
+              </div>
+            </div>
+
+            <!-- Intake -->
+            <div class="io-section-divider">Intake</div>
+            <div class="form-row">
+              <div class="form-group">
+                <label for="oralIntake">Oral Intake (mL)</label>
+                <input type="number" id="oralIntake" placeholder="e.g. 250" min="0" value="">
+              </div>
+              <div class="form-group">
+                <label for="ivfIntake">IV Fluids / IVF (mL)</label>
+                <input type="number" id="ivfIntake" placeholder="e.g. 500" min="0" value="">
+              </div>
+              <div class="form-group">
+                <label for="btIntake">Blood Transfusion / BT (mL)</label>
+                <input type="number" id="btIntake" placeholder="e.g. 0" min="0" value="">
+              </div>
+            </div>
+            <div class="io-totals-row">
+              <div class="io-total-box">
+                <span class="io-total-label">Total Intake</span>
+                <span class="io-total-value" id="totalIntakeDisplay">0 mL</span>
+              </div>
+            </div>
+
+            <!-- Output -->
+            <div class="io-section-divider" style="margin-top: 20px;">Output</div>
+            <div class="form-row">
+              <div class="form-group">
+                <label for="urineOutput">Urine Output (mL)</label>
+                <input type="number" id="urineOutput" placeholder="e.g. 300" min="0" value="">
+              </div>
+              <div class="form-group">
+                <label for="ngtOutput">NGT Output (mL)</label>
+                <input type="number" id="ngtOutput" placeholder="e.g. 0" min="0" value="">
+              </div>
+              <div class="form-group">
+                <label for="vomitusOutput">Vomitus (mL)</label>
+                <input type="number" id="vomitusOutput" placeholder="e.g. 0" min="0" value="">
+              </div>
+              <div class="form-group">
+                <label for="bowelOutput">Bowel Movement (mL)</label>
+                <input type="number" id="bowelOutput" placeholder="e.g. 0" min="0" value="">
+              </div>
+            </div>
+            <div class="io-totals-row">
+              <div class="io-total-box">
+                <span class="io-total-label">Total Output</span>
+                <span class="io-total-value" id="totalOutputDisplay">0 mL</span>
+              </div>
+            </div>
+
+            <button type="submit" class="btn-save" style="margin-top: 18px;">Save</button>
+          </form>
+        </div>
+
+        <div class="data-table-section">
+          <div class="table-header">
+            <h3>Intake and Output Records</h3>
+            <button type="button" class="btn-clear" id="clearIO">Clear All Records</button>
+          </div>
+          <div class="table-wrapper">
+            <table class="data-table">
+              <thead>
+                <tr>
+                  <th>Shift</th>
+                  <th>Date &amp; Time</th>
+                  <th>Oral (mL)</th>
+                  <th>IVF (mL)</th>
+                  <th>BT (mL)</th>
+                  <th>Total Intake (mL)</th>
+                  <th>Urine (mL)</th>
+                  <th>NGT (mL)</th>
+                  <th>Vomitus (mL)</th>
+                  <th>Bowel Mvmt (mL)</th>
+                  <th>Total Output (mL)</th>
+                </tr>
+              </thead>
+              <tbody id="ioTableBody">
+                <tr><td colspan="11" style="text-align: center; color: var(--text-muted);">No records yet. Add intake/output above.</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+      </div>
+    </main>
+  </div>
+
+  <script src="script.js"></script>
+  <script>
+    // ─── VITAL SIGNS ───────────────────────────────────────────────
+    const VITALS_STORAGE_KEY = 'his_vital_signs';
+
+    function loadVitals() {
+      const tbody = document.getElementById('vitalTableBody');
+      const selectedId = getSelectedPatientId();
+      if (!selectedId) {
+        tbody.innerHTML = '<tr><td colspan="8" style="text-align:center;color:var(--text-muted);">Select a patient above to view vital signs.</td></tr>';
+        return;
+      }
+      const all = getStoredData(VITALS_STORAGE_KEY);
+      const data = all.filter(v => v.patientId === selectedId);
+      if (data.length === 0) {
+        tbody.innerHTML = '<tr><td colspan="8" style="text-align:center;color:var(--text-muted);">No records yet for this patient. Add vital signs above.</td></tr>';
+        return;
+      }
+      tbody.innerHTML = data.map(v => `
+        <tr>
+          <td>${v.shift || '-'}</td>
+          <td>${v.temperature}&deg;C</td>
+          <td>${v.bloodPressure}</td>
+          <td>${v.pulseRate} bpm</td>
+          <td>${v.respiratoryRate}/min</td>
+          <td>${v.oxygenSaturation ? v.oxygenSaturation + '%' : '-'}</td>
+          <td>${v.date} ${v.time}</td>
+          <td>${formatMultiline(v.notes) || '-'}</td>
+        </tr>
+      `).join('');
+    }
+
+    document.getElementById('vitalForm').addEventListener('submit', function(e) {
+      e.preventDefault();
+      const selectedId = getSelectedPatientId();
+      if (!selectedId) { alert('Please select a patient first.'); return; }
+      const records = getStoredData(VITALS_STORAGE_KEY);
+      records.push({
+        patientId: selectedId,
+        shift: document.getElementById('shift').value,
+        temperature: document.getElementById('temperature').value,
+        bloodPressure: document.getElementById('bloodPressure').value,
+        pulseRate: document.getElementById('pulseRate').value,
+        respiratoryRate: document.getElementById('respiratoryRate').value,
+        oxygenSaturation: document.getElementById('oxygenSaturation').value,
+        date: document.getElementById('vitalDate').value,
+        time: document.getElementById('vitalTime').value,
+        notes: document.getElementById('vitalNotes').value
+      });
+      setStoredData(VITALS_STORAGE_KEY, records);
+      loadVitals();
+      this.reset();
+      refreshDashboard();
+    });
+
+    document.getElementById('clearVitals').addEventListener('click', function() {
+      const selectedId = getSelectedPatientId();
+      if (!selectedId) { alert('Select a patient first.'); return; }
+      if (confirm('Clear all vital signs records for this patient? This cannot be undone.')) {
+        const all = getStoredData(VITALS_STORAGE_KEY);
+        setStoredData(VITALS_STORAGE_KEY, all.filter(v => v.patientId !== selectedId));
+        loadVitals();
+        refreshDashboard();
+      }
+    });
+
+    // ─── INTAKE & OUTPUT ───────────────────────────────────────────
+    const IO_STORAGE_KEY = 'his_intake_output';
+
+    function getNum(id) {
+      return parseFloat(document.getElementById(id).value) || 0;
+    }
+
+    function updateIOTotals() {
+      var intake = getNum('oralIntake') + getNum('ivfIntake') + getNum('btIntake');
+      var output = getNum('urineOutput') + getNum('ngtOutput') + getNum('vomitusOutput') + getNum('bowelOutput');
+      document.getElementById('totalIntakeDisplay').textContent = intake + ' mL';
+      document.getElementById('totalOutputDisplay').textContent = output + ' mL';
+    }
+
+    ['oralIntake','ivfIntake','btIntake','urineOutput','ngtOutput','vomitusOutput','bowelOutput'].forEach(function(id) {
+      document.getElementById(id).addEventListener('input', updateIOTotals);
+    });
+
+    function loadIORecords() {
+      var tbody = document.getElementById('ioTableBody');
+      var selectedId = getSelectedPatientId();
+      if (!selectedId) {
+        tbody.innerHTML = '<tr><td colspan="11" style="text-align:center;color:var(--text-muted);">Select a patient above to view intake/output records.</td></tr>';
+        return;
+      }
+      var all = getStoredData(IO_STORAGE_KEY);
+      var data = all.filter(function(io) { return io.patientId === selectedId; });
+      if (data.length === 0) {
+        tbody.innerHTML = '<tr><td colspan="11" style="text-align:center;color:var(--text-muted);">No records yet for this patient. Add intake/output above.</td></tr>';
+        return;
+      }
+      tbody.innerHTML = data.map(function(io) {
+        return '<tr>' +
+          '<td>' + (io.shift || '-') + '</td>' +
+          '<td>' + io.date + ' ' + io.time + '</td>' +
+          '<td>' + (io.oralIntake != null ? io.oralIntake : '-') + '</td>' +
+          '<td>' + (io.ivfIntake != null ? io.ivfIntake : '-') + '</td>' +
+          '<td>' + (io.btIntake != null ? io.btIntake : '-') + '</td>' +
+          '<td><strong>' + io.totalIntake + '</strong></td>' +
+          '<td>' + (io.urineOutput != null ? io.urineOutput : '-') + '</td>' +
+          '<td>' + (io.ngtOutput != null ? io.ngtOutput : '-') + '</td>' +
+          '<td>' + (io.vomitusOutput != null ? io.vomitusOutput : '-') + '</td>' +
+          '<td>' + (io.bowelOutput != null ? io.bowelOutput : '-') + '</td>' +
+          '<td><strong>' + io.totalOutput + '</strong></td>' +
+        '</tr>';
+      }).join('');
+    }
+
+    document.getElementById('ioForm').addEventListener('submit', function(e) {
+      e.preventDefault();
+      var selectedId = getSelectedPatientId();
+      if (!selectedId) { alert('Please select a patient first.'); return; }
+
+      var oralIntake    = getNum('oralIntake');
+      var ivfIntake     = getNum('ivfIntake');
+      var btIntake      = getNum('btIntake');
+      var urineOutput   = getNum('urineOutput');
+      var ngtOutput     = getNum('ngtOutput');
+      var vomitusOutput = getNum('vomitusOutput');
+      var bowelOutput   = getNum('bowelOutput');
+
+      var totalIntake = oralIntake + ivfIntake + btIntake;
+      var totalOutput = urineOutput + ngtOutput + vomitusOutput + bowelOutput;
+
+      var records = getStoredData(IO_STORAGE_KEY);
+      records.push({
+        patientId:    selectedId,
+        shift:        document.getElementById('ioShift').value,
+        date:         document.getElementById('ioDate').value,
+        time:         document.getElementById('ioTime').value,
+        oralIntake:   oralIntake,
+        ivfIntake:    ivfIntake,
+        btIntake:     btIntake,
+        totalIntake:  totalIntake,
+        urineOutput:  urineOutput,
+        ngtOutput:    ngtOutput,
+        vomitusOutput:vomitusOutput,
+        bowelOutput:  bowelOutput,
+        totalOutput:  totalOutput
+      });
+      setStoredData(IO_STORAGE_KEY, records);
+      loadIORecords();
+      this.reset();
+      updateIOTotals();
+      refreshDashboard();
+    });
+
+    document.getElementById('clearIO').addEventListener('click', function() {
+      var selectedId = getSelectedPatientId();
+      if (!selectedId) { alert('Select a patient first.'); return; }
+      if (confirm('Clear all intake/output records for this patient? This cannot be undone.')) {
+        var all = getStoredData(IO_STORAGE_KEY);
+        setStoredData(IO_STORAGE_KEY, all.filter(function(io){ return io.patientId !== selectedId; }));
+        loadIORecords();
+        refreshDashboard();
+      }
+    });
+
+    // ─── INIT ──────────────────────────────────────────────────────
+    (function init() {
+      populatePatientSelect('patientSelect', {
+        onChange: function() {
+          loadVitals();
+          loadIORecords();
+        }
+      });
+      loadVitals();
+      loadIORecords();
+    })();
+  </script>
+</body>
+</html>
